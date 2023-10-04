@@ -1,51 +1,51 @@
-import datetime as dt
 from dataclasses import dataclass
+from enum import Enum
 
 from money import Money
 
 from definitions.cash_flow import CashFlow
 from definitions.date import Date
+from definitions.interest_rate import DayCount, InterestRate
 
-from definitions.interest_rate import FixedInterestRate
+
+class Frequency(str, Enum):
+    ANNUAL = "ANNUAL"
 
 
 @dataclass
 class Deposit:
+    """
+    Implementation of a simple deposit:
+        - principal is exchanged at the start date
+        - principal + interests are exchanged at the end date
+        - computation of interests depends on the InterestRate object
+    """
+
     start: Date
     end: Date
-    interest_rate: FixedInterestRate
-    notional: Money
-    compounding: Compounding
+    interest_rate: InterestRate
+    principal: Money
 
     @property
     def days(self) -> int:
-        return self.end - self.start
+        days = self.end - self.start
+        return days.days
+
+    @property
+    def interests(self) -> Money:
+        day_count = 360 if self.interest_rate.day_count == DayCount.ACT_360 else 365  # Todo amend
+        interests = self.principal.amount * self.interest_rate.rate * self.days / day_count
+        return Money(interests, self.principal.currency)
 
     @property
     def cash_flows(self) -> list[CashFlow]:
-
-        return [
-            CashFlow(self.start, self.notional),
-            CashFlow(self.end, self.notional * (1 + self.interest_rate.rate))
+        cash_flows = [
+            CashFlow(self.start, self.principal),
+            CashFlow(self.end, self.interests),
+            CashFlow(self.end, self.principal),
         ]
-
-@dataclass
-class FixedRateDeposit:
-    start: dt.date
-    end: dt.date
-    interest_rate: FixedInterestRate
+        return cash_flows
 
 
 # What this is really is a Deposit Quote
 # You can also have Deposit Trades
-
-
-@dataclass
-class DepositTrade:
-    td: date
-    vd: date
-    maturity: date
-    notional: float
-    rate: float
-    book: str
-    counterpart: str

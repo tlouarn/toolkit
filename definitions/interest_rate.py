@@ -1,6 +1,9 @@
+import math
 from dataclasses import dataclass
+from decimal import Decimal
 from enum import Enum
 
+from shared.exceptions import ToolkitException
 
 """
 Objectives
@@ -12,6 +15,10 @@ cash_flow = notional * rate * duration / daycount and take compounding into acco
 rate = ZeroInterestRate(0.03)
 
 """
+
+
+class InvalidInterestRateComparison(ToolkitException):
+    pass
 
 
 class Benchmark(str, Enum):
@@ -28,7 +35,7 @@ class Compounding(str, Enum):
     Interest rates compounding conventions
     """
 
-    NO_COMPOUNDING = "NoCompounding"
+    NO_COMPOUNDING = "NoCompounding"  #TODO add simple interest = no compounding
     ANNUAL = "Annual"
     SEMI_ANNUAL = "SemiAnnual"
     QUARTERLY = "Quarterly"
@@ -49,9 +56,48 @@ class DayCount(str, Enum):
 
 @dataclass
 class InterestRate:
-    rate: float
+    """
+    Definition of a nominal interest rate.
+    """
+
+    rate: Decimal
     compounding: Compounding
     day_count: DayCount
+
+    @property
+    def effective(self) -> Decimal:
+        #TODO
+        match self.compounding:
+
+            case Compounding.ANNUAL:
+                pass
+
+            case Compounding.MONTHLY:
+                return (1 + self.rate / 12) ** 12 - 1
+
+            case Compounding.QUARTERLY:
+                return (1 + self.rate / 4) ** 4 - 1
+
+            case Compounding.WEEKLY:
+                return (1 + self.rate / 52) ** 52 - 1
+
+            case Compounding.DAILY:
+                return (1 + self.rate / 365) ** 365 - 1
+
+            case Compounding.CONTINUOUS:
+                return Decimal.exp(self.rate) - 1
+
+    def __eq__(self, other):
+        if not isinstance(other, InterestRate):
+            raise InvalidInterestRateComparison()
+
+        return self.rate == other.rate and self.compounding == other.compounding
+
+    def __lt__(self, other):
+        if not isinstance(other, InterestRate):
+            raise InvalidInterestRateComparison()
+
+        return self.effective < other.effective
 
 
 @dataclass

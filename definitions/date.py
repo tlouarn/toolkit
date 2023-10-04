@@ -44,8 +44,9 @@ class Date:
     @classmethod
     def imm(cls, month: int, year: int) -> Date:
         """
+        IMM = International Monetary Market
         Instantiate a Date corresponding to the IMM date for a given month and year.
-        The IMM date is the third Wednesday of the month (IMM = International Monetary Market).
+        The IMM date is the third Wednesday of the month .
         """
         date = Date(15, month, year)
         while date.weekday != "WED":
@@ -107,6 +108,10 @@ class Date:
         weekday = date.strftime("%a")
         return Weekday(weekday.upper())
 
+    @property
+    def is_weekend(self) -> bool:
+        return self.weekday in [Weekday.SAT, Weekday.SUN]
+
     def __add__(self, other: Period) -> Date:
         """
         Adding a Period to a Date returns a new Date.
@@ -130,7 +135,8 @@ class Date:
             return Days(days)
 
         elif isinstance(other, Period):
-            return self._add_delta(date, other)
+            period = Period(-other.quantity, other.unit)
+            return self._add_delta(date, period)
 
         else:
             raise InvalidOperation(f"Only a Date or a Period can be subtracted from a Date")

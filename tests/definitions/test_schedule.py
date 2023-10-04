@@ -1,7 +1,7 @@
 from holidays import financial_holidays
 
 from definitions import Adjustment, Date, Period
-from definitions.schedule import generate_performance_resets
+from definitions.schedule import generate_performance_flows
 
 
 def test_build_schedule():
@@ -17,7 +17,7 @@ def test_build_schedule():
 
     # TODO include check on weekdays
 
-    schedule = generate_performance_resets(
+    schedule = generate_performance_flows(
         start=start, maturity=maturity, frequency=frequency, holidays=calendar, adjustment=adjustment, offset=offset
     )
 

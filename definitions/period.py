@@ -7,6 +7,7 @@ from shared.exceptions import ToolkitException
 
 
 # TODO ADD WEEKDAYS
+# TODO check sort 7D vs 1W, 12m vs 1Y, 4W vs 1M, 30D vs 1M
 
 
 class InvalidPeriodUnit(ToolkitException):
@@ -33,7 +34,8 @@ class Period:
     @classmethod
     def parse(cls, string: str) -> Period:
         """
-        Instantiate a Period from a string e.g. "2D", "1W", "3M" or "10Y"
+        Instantiate a Period from a string.
+        Examples: "2D", "1W", "3M" or "10Y".
         """
         if not string[:-1].isdigit():
             raise InvalidPeriodQuantity(string)
@@ -64,8 +66,19 @@ class Period:
 
         return self.days < other.days
 
+    def __mul__(self, other: int) -> Period:
+        if not isinstance(other, int):
+            raise NotImplementedError
+
+        return Period(self.quantity * other, self.unit)
+
     @property
     def days(self) -> int:
+        """
+        The average number of days in the Period.
+        For example, a month is 365.25 / 12 = 30.42 days on average.
+        Used to compare and sort periods.
+        """
         match self.unit:
             case "D":
                 return self.quantity

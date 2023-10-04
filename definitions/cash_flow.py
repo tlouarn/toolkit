@@ -2,7 +2,7 @@ from dataclasses import dataclass
 
 from money import Money
 
-from definitions import Date
+from definitions.date import Date
 
 
 @dataclass

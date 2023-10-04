@@ -23,7 +23,7 @@ def previous(date: Date, holidays: HolidayBase) -> Date:
     Previous business day adjustment
     """
     adjusted_date = date
-    while adjusted_date.to_date() in holidays:
+    while adjusted_date.is_weekend or adjusted_date.to_date() in holidays:
         adjusted_date = adjusted_date - Days(1)
     return adjusted_date
 
@@ -43,9 +43,9 @@ def following(date: Date, holidays: HolidayBase) -> Date:
     Following business day adjustment
     """
     adjusted_date = date
-    while adjusted_date.to_date() in holidays:
+    while adjusted_date.is_weekend or adjusted_date.to_date() in holidays:
         adjusted_date = adjusted_date + Days(1)
-    return date
+    return adjusted_date
 
 
 def modified_following(date: Date, holidays: HolidayBase) -> Date:

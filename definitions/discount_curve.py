@@ -1,10 +1,9 @@
 from __future__ import annotations
 
-import datetime as dt
-from dataclasses import dataclass
+from enum import Enum
 
-from definitions import Date, DayCount
-from instruments.deposit import FixedRateDeposit
+from definitions.date import Date
+from definitions.discount_factor import DiscountFactor
 
 """
 Ways to instantiate a DiscountFactor:
@@ -18,40 +17,18 @@ df = DiscountFactor.from_interest_rate(interest_rate, start, end)
 """
 
 
-
-@dataclass
-class DiscountFactor:
-    start: Date
-    end: Date
-    value: float
-
-    @classmethod
-    def from_interest_rate(cls, interest_rate: InterestRate, start: dt.date, end: dt.date):
-        days = (end - start).days
-        day_count =
-
-    @classmethod
-    def from_deposit(cls, deposit: FixedRateDeposit) -> DiscountFactor:
-        """
-        Instantiate a DiscountFactor from a FixedRateDeposit.
-        :param deposit: FixedRateDeposit
-        :return: DiscountFactor
-        """
-        days = (deposit.end - deposit.start).days
-        convention = 360 if deposit.convention == DayCount.ACT_360 else 365
-        df = 1 / (1 + deposit.rate * days / convention)
-        return DiscountFactor(date=deposit.end, value=df)
+class Interpolation(str, Enum):
+    FLAT_FORWARD = "FlatForward"
 
 
 class DiscountCurve:
-    def __init__(self):
-        self.discount_factors = list()
+    def __init__(self, discount_factors: list[DiscountFactor], interpolation: Interpolation):
+        self.discount_factors = discount_factors
+        self.interpolation = interpolation
 
     def add(self, discount_factor: DiscountFactor) -> None:
         self.discount_factors.append(discount_factor)
 
-    def compute_discount_factor(self, start: date, end: date) -> DiscountFactor:
+    def compute_discount_factor(self, start: Date, end: Date) -> DiscountFactor:
         # Interpolate using a preferred method CONSTANT_FORWARD_RATES
         pass
-
-
