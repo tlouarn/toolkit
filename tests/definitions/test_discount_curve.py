@@ -23,7 +23,7 @@ def test_construct_discount_curve():
     # Create InterestRate objects
     interest_rates = {}
     for period, rate in quotes.items():
-        interest_rates[period] = InterestRate(rate=rate, day_count=DayCount.ACT_360, compounding=Compounding.ANNUAL)
+        interest_rates[period] = InterestRate(rate=rate, day_count=DayCount.ACTUAL_360, compounding=Compounding.YEARLY)
 
     # Build discount curve
     discount_factors = []

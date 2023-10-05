@@ -20,7 +20,7 @@ def test_construct_discount_factor():
 def test_construct_from_interest_rate():
     rate = Decimal("0.03")
     day_count = DayCount("ACT/360")
-    compounding = Compounding.ANNUAL
+    compounding = Compounding.YEARLY
     interest_rate = InterestRate(rate=rate, day_count=day_count, compounding=compounding)
 
     start = Date(2023, 9, 18)

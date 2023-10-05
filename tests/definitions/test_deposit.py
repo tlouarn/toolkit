@@ -8,7 +8,7 @@ from definitions.interest_rate import DayCount
 from definitions.interest_rate import Compounding, InterestRate
 from instruments.deposit import Deposit
 
-INTEREST_RATE = InterestRate(rate=Decimal("0.03"), compounding=Compounding.ANNUAL, day_count=DayCount.ACT_360)
+INTEREST_RATE = InterestRate(rate=Decimal("0.03"), compounding=Compounding.YEARLY, day_count=DayCount.ACTUAL_360)
 
 
 def test_create_deposit():

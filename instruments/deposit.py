@@ -33,7 +33,7 @@ class Deposit:
 
     @property
     def interests(self) -> Money:
-        day_count = 360 if self.interest_rate.day_count == DayCount.ACT_360 else 365  # Todo amend
+        day_count = 360 if self.interest_rate.day_count == DayCount.ACTUAL_360 else 365  # Todo amend
         interests = self.principal.amount * self.interest_rate.rate * self.days / day_count
         return Money(interests, self.principal.currency)
 
