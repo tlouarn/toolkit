@@ -112,6 +112,10 @@ class Date:
     def is_weekend(self) -> bool:
         return self.weekday in [Weekday.SAT, Weekday.SUN]
 
+    @property
+    def is_leap_year(self) -> bool:
+        return self.year % 4 == 0 and (self.year % 100 != 0 or self.year % 400 == 0)
+
     def __add__(self, other: Period) -> Date:
         """
         Adding a Period to a Date returns a new Date.

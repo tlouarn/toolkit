@@ -114,3 +114,22 @@ def test_is_weekend():
     assert not Date(2023, 9, 22).is_weekend
     assert Date(2023, 9, 23).is_weekend
     assert Date(2023, 9, 24).is_weekend
+
+
+def test_is_leap_year():
+    assert not Date(2001, 1, 1).is_leap_year
+    assert not Date(2021, 1, 1).is_leap_year
+
+    assert Date(2000, 1, 1).is_leap_year
+    assert Date(2004, 1, 1).is_leap_year
+    assert Date(2008, 1, 1).is_leap_year
+    assert Date(2012, 1, 1).is_leap_year
+    assert Date(2016, 1, 1).is_leap_year
+    assert Date(2020, 1, 1).is_leap_year
+    assert Date(2024, 1, 1).is_leap_year
+
+    assert not Date(2100, 1, 1).is_leap_year
+    assert not Date(1900, 1, 1).is_leap_year
+
+    assert Date(2400, 1, 1).is_leap_year
+    assert Date(1600, 1, 1).is_leap_year

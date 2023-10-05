@@ -4,7 +4,7 @@ from enum import Enum
 
 from definitions.date import Date
 from definitions.interest_rate import Compounding, DayCount, InterestRate
-from definitions.period import Period, Unit
+from definitions.period import Days, Period, Unit
 
 
 @dataclass
@@ -41,12 +41,46 @@ class Frequency(str, Enum):
 
 class Bond:
     # TODO: COUPON IS AN INTEREST RATE< ACT/365 AND NOCOUMPOUNDING
-    def __init__(self, issue: Date, maturity: Date, par: Decimal, coupon: Decimal, frequency: Frequency):
+    def __init__(self, issue: Date, maturity: Date, par: Decimal, face_value: Decimal, coupons: list[Coupon]):
         self.issue = issue
         self.maturity = maturity
         self.par = par
-        self.coupon = coupon
-        self.frequency = frequency
+        self.face_value = face_value
+        self.coupons = coupons
+
+    def compute_accruals(self, date: Date, price: Decimal) -> Decimal:
+        pass
+
+    def compute_ytm(self, date: Date, price: Decimal) -> InterestRate:
+        pass
+
+
+# https://www.jdawiseman.com/papers/finmkts/gilt_statics.html
+
+coupon = InterestRate(
+    rate=Decimal("0.00125"),
+    compounding=Compounding.ANNUAL,
+    day_count=DayCount.ACT_ACT
+)
+
+
+def gilt(issue: Date, maturity: Date, coupon: InterestRate) -> Bond:
+    """
+    Factory function to create a Bond object based on Gilt characteristics.
+    A Gilt is defined by:
+       - issue date
+       - maturity date
+    :param issue: Date
+    :param maturity:
+    :param coupon: Decimal with the coupon expressed as ACT/365
+    :return:
+    """
+
+
+class Gilt(Bond):
+    def __init__(self, issue: Date, maturity: Date, coupon: InterestRate):
+        coupon_dates = []
+        super().__init__(issue, maturity, coupon, coupon_dates)
 
     @property
     def coupon_dates(self) -> list[Date]:
@@ -65,31 +99,11 @@ class Bond:
         coupon_dates.append(coupon_date)
 
         # Go backwards and add the periodic coupons
-        # The first coupon typically does not happen if
-        # less than a period away from the issue date
+        # The first coupon typically occurs at least
+        # 60 days after issue date (DMO policy)
         period = self.frequency.to_period()
-        while coupon_date > self.issue + period * 2:
+        while coupon_date > self.issue + Days(60) + period:
             coupon_date = coupon_date - period
             coupon_dates.append(coupon_date)
 
         return sorted(coupon_dates)
-
-    def compute_accruals(self, date: Date, price: Decimal) -> Decimal:
-        pass
-
-    def compute_ytm(self, date: Date, price: Decimal) -> InterestRate:
-        pass
-
-
-
-# https://www.jdawiseman.com/papers/finmkts/gilt_statics.html
-
-
-class ConventionalGilt(Bond):
-
-    def __init__(self, issue: Date, maturity: Date, coupon: Decimal):
-        coupon_dates = []
-        super().__init__(issue, maturity, coupon, coupon_dates)
-
-
-

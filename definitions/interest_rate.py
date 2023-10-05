@@ -1,9 +1,9 @@
-import math
 from dataclasses import dataclass
 from decimal import Decimal
 from enum import Enum
 
 from shared.exceptions import ToolkitException
+from definitions.day_count import DayCount
 
 """
 Objectives
@@ -35,7 +35,7 @@ class Compounding(str, Enum):
     Interest rates compounding conventions
     """
 
-    NO_COMPOUNDING = "NoCompounding"  #TODO add simple interest = no compounding
+    NO_COMPOUNDING = "NoCompounding"  # TODO add simple interest = no compounding
     ANNUAL = "Annual"
     SEMI_ANNUAL = "SemiAnnual"
     QUARTERLY = "Quarterly"
@@ -44,14 +44,6 @@ class Compounding(str, Enum):
     DAILY = "Daily"
     CONTINUOUS = "Continuous"
 
-
-class DayCount(str, Enum):
-    """
-    Day count conventions.
-    """
-
-    ACT_360 = "ACT/360"
-    ACT_365 = "ACT/365"
 
 
 @dataclass
@@ -66,9 +58,8 @@ class InterestRate:
 
     @property
     def effective(self) -> Decimal:
-        #TODO
+        # TODO
         match self.compounding:
-
             case Compounding.ANNUAL:
                 pass
 
