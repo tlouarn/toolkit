@@ -7,6 +7,10 @@ from definitions.interest_rate import Compounding, DayCount, InterestRate
 from definitions.period import Days, Period, Unit
 
 
+# Useful links and remarks
+# https://quant.stackexchange.com/questions/68186/30e-360-bond-payment-schedule
+
+
 class CouponPayment(str, Enum):
     ANNUAL = "Annual"
     SEMI_ANNUAL = "SemiAnnual"

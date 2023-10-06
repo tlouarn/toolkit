@@ -7,6 +7,7 @@ from definitions.date_range import DateRange
 
 # Some useful definitions
 # https://www.isda.org/a/pIJEE/The-Actual-Actual-Day-Count-Fraction-1999.pdf
+# https://www.isda.org/a/mIJEE/30-360-2006ISDADefs.xls
 
 
 class DayCount(str, Enum):
@@ -18,11 +19,12 @@ class DayCount(str, Enum):
     ACTUAL_365 = "ACT/365"
     ACTUAL_ACTUAL = "ACT/ACT"  # ACT/ACT ISDA pro rata of daycount in leap year and in non-leap year
     THIRTY_360 = "30E/360"  # 30E/360 "EUROBOND BASIS"
+    # TODO add more day count conventions
 
 
 def year_fraction(start_date: Date, end_date: Date, day_count: DayCount) -> Decimal:
     """
-    Compute the year fraction between two dates.
+    Compute the fraction of year between two dates.
     Used to compute the accrued interests on a wide range of financial instruments.
     """
     calendar_days = (end_date - start_date).days

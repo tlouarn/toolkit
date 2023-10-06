@@ -9,6 +9,18 @@ amounts: Money
 holidays: HolidayBase
 
 
+## Handling numbers
+
+floats are fast but lack precisions
+should we use Decimal for all calculations?
+
+
+Difficulties with the terminology: a same concept can be named differently
+by market practitioners. 
+
+Conceptual difficulties: need to group conceptually-linked concepts together
+e.g. an InterestRate can't be defined without a DayCount (or a Compounding)
+
 
 ## Design goals
 
