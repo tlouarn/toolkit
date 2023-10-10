@@ -7,7 +7,7 @@ from typing import Literal
 import QuantLib as ql
 from holidays import HolidayBase, financial_holidays
 
-from definitions.adjustment import Adjustment, adjust
+from definitions.adjustment import BusinessDayConvention, adjust_date
 from definitions.date import Date
 from definitions.day_count import DayCount
 from definitions.interest_rate import Compounding
@@ -26,6 +26,7 @@ a = 1
 
 # https://www.clarusft.com/ois-swap-nuances/
 # http://mikejuniperhill.blogspot.com/2015/07/pricing-bloomberg-swap-manager.html
+
 
 class Way:
     PAYER = "PAYER"
@@ -90,7 +91,7 @@ class OIS:
 
 
 def make_ois_schedule(
-        start_date: Date, tenor: Period, step: Period, holidays: HolidayBase, adjustment: Adjustment
+        start_date: Date, tenor: Period, step: Period, holidays: HolidayBase, adjustment: BusinessDayConvention
 ) -> list[Date]:
     schedule = []
 
@@ -100,7 +101,7 @@ def make_ois_schedule(
     maturity = start_date + tenor
 
     # Adjust swap maturity
-    maturity = adjust(maturity, holidays, adjustment)
+    maturity = adjust_date(maturity, holidays, adjustment)
     schedule.append(maturity)
 
     # Check if maturity is > step
@@ -114,7 +115,7 @@ def make_ois_schedule(
         date = date - step
 
     # Adjust intermediary payment dates
-    schedule = [adjust(date, holidays, adjustment) for date in schedule]
+    schedule = [adjust_date(date, holidays, adjustment) for date in schedule]
 
     return schedule
 
@@ -124,7 +125,7 @@ if __name__ == "__main__":
     tenor = Period.parse("1Y")
     step = Period.parse("1M")
     holidays = financial_holidays("ECB")
-    adjustment = Adjustment.MODIFIED_FOLLOWING
+    adjustment = BusinessDayConvention.MODIFIED_FOLLOWING
     schedule = make_ois_schedule(start_date, tenor, step, holidays, adjustment)
 
     a = 1

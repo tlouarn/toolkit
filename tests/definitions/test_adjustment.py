@@ -1,6 +1,6 @@
 from holidays import financial_holidays
 
-from definitions.adjustment import Adjustment, adjust
+from definitions.adjustment import BusinessDayConvention, adjust_date
 from definitions.date import Date
 
 
@@ -8,13 +8,13 @@ from definitions.date import Date
 
 
 def test_create_adjustment():
-    adjustment = Adjustment("ModifiedFollowing")
+    adjustment = BusinessDayConvention("ModifiedFollowing")
 
-    assert adjustment == Adjustment.MODIFIED_FOLLOWING
+    assert adjustment == BusinessDayConvention.MODIFIED_FOLLOWING
 
 
 def test_adjust():
     date = Date(2023, 12, 25)
-    adjusted_date = adjust(date, financial_holidays("ECB"), Adjustment.MODIFIED_FOLLOWING)
+    adjusted_date = adjust_date(date, financial_holidays("ECB"), BusinessDayConvention.MODIFIED_FOLLOWING)
 
     assert adjusted_date == Date(2023, 12, 27)

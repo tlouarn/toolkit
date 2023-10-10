@@ -5,7 +5,7 @@ from enum import Enum
 from holidays import financial_holidays, HolidayBase
 from money import Money
 
-from definitions.adjustment import Adjustment
+from definitions.adjustment import BusinessDayConvention
 from definitions.date import Date
 from definitions.interest_rate import InterestRate, Compounding, DayCount
 from definitions.period import Period
@@ -35,7 +35,7 @@ from instruments.ois import make_ois_schedule
 
 schedule = make_ois_schedule(
     Date(2021, 7, 2), tenor=Period.parse("5Y"), step=Period.parse("6M"), holidays=financial_holidays("US"),
-    adjustment=Adjustment("ModifiedFollowing"))
+    adjustment=BusinessDayConvention("ModifiedFollowing"))
 
 a = 1
 
@@ -44,7 +44,7 @@ schedule = make_ois_schedule(
     tenor=Period.parse("3M"),
     step=Period.parse("6M"),
     holidays=financial_holidays("US"),
-    adjustment=Adjustment("ModifiedFollowing")
+    adjustment=BusinessDayConvention("ModifiedFollowing")
 )
 
 # First zero rate

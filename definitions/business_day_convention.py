@@ -6,9 +6,12 @@ from definitions.date import Date
 from definitions.period import Days
 
 
-class Adjustment(str, Enum):
+class BusinessDayConvention(str, Enum):
     """
-    Business day Adjustement conventions
+    Business day adjustment conventions.
+    Usage:
+    - convention = BusinessDayConvention("ModifiedFollowing")
+    - convention = BusinessDayConvention.MODIFIED_FOLLOWING
     """
 
     UNADJUSTED = "Unadjusted"
@@ -20,7 +23,7 @@ class Adjustment(str, Enum):
 
 def previous(date: Date, holidays: HolidayBase) -> Date:
     """
-    Previous business day adjustment
+    Previous business day adjustment.
     """
     adjusted_date = date
     while adjusted_date.is_weekend or adjusted_date.to_date() in holidays:
@@ -30,7 +33,7 @@ def previous(date: Date, holidays: HolidayBase) -> Date:
 
 def modified_previous(date: Date, holidays: HolidayBase) -> Date:
     """
-    ModifiedPrevious business day adjustment
+    ModifiedPrevious business day adjustment.
     """
     adjusted_date = previous(date, holidays)
     if adjusted_date.month == date.month:
@@ -40,7 +43,7 @@ def modified_previous(date: Date, holidays: HolidayBase) -> Date:
 
 def following(date: Date, holidays: HolidayBase) -> Date:
     """
-    Following business day adjustment
+    Following business day adjustment.
     """
     adjusted_date = date
     while adjusted_date.is_weekend or adjusted_date.to_date() in holidays:
@@ -50,7 +53,7 @@ def following(date: Date, holidays: HolidayBase) -> Date:
 
 def modified_following(date: Date, holidays: HolidayBase) -> Date:
     """
-    ModifiedFollowing business day adjustment
+    ModifiedFollowing business day adjustment.
     """
     adjusted_date = following(date, holidays)
     if adjusted_date.month == date.month:
@@ -58,18 +61,18 @@ def modified_following(date: Date, holidays: HolidayBase) -> Date:
     return previous(date, holidays)
 
 
-def adjust(date: Date, holidays: HolidayBase, adjustment: Adjustment) -> Date:
+def adjust_date(date: Date, holidays: HolidayBase, adjustment: BusinessDayConvention) -> Date:
     """
-    Base method to adjust a date based on given holidays and adjustment method.
+    Base method to adjust a date based on given holidays and a business day convention.
     """
     match adjustment:
-        case Adjustment.UNADJUSTED:
+        case BusinessDayConvention.UNADJUSTED:
             return date
-        case Adjustment.PREVIOUS:
+        case BusinessDayConvention.PREVIOUS:
             return previous(date, holidays)
-        case Adjustment.MODIFIED_PREVIOUS:
+        case BusinessDayConvention.MODIFIED_PREVIOUS:
             return modified_previous(date, holidays)
-        case Adjustment.FOLLOWING:
+        case BusinessDayConvention.FOLLOWING:
             return following(date, holidays)
-        case Adjustment.MODIFIED_FOLLOWING:
+        case BusinessDayConvention.MODIFIED_FOLLOWING:
             return modified_following(date, holidays)
