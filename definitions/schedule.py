@@ -5,6 +5,9 @@ from definitions.date import Date
 from definitions.period import Period
 from definitions.stub import StubConvention
 
+# A schedule is a list of dates
+Schedule = list[Date]
+
 
 def generate_schedule(
     start: Date,
@@ -13,7 +16,7 @@ def generate_schedule(
     holidays: HolidayBase,
     adjustment: BusinessDayConvention,
     stub: StubConvention,
-) -> list[Date]:
+) -> Schedule:
     """
     Generate a payment Schedule.
 
@@ -28,6 +31,10 @@ def generate_schedule(
     # Initialize schedule
     schedule = []
 
+    # Ensure maturity is > start
+    if tenor.quantity <= 0:
+        raise ValueError(f"Schedule tenor cannot be negative (value received={str(tenor)}).")
+
     # Compute maturity
     maturity = start + tenor
 
@@ -39,7 +46,7 @@ def generate_schedule(
     if maturity < start + step:
         return schedule
 
-    # If the stub is Front, compute regular periods
+    # If the stub is FRONT, compute regular periods
     # starting from the maturity
     if stub == StubConvention.FRONT:
         date = maturity - step
@@ -58,4 +65,5 @@ def generate_schedule(
     # Adjust intermediary payment dates
     schedule = [adjust_date(date, holidays, adjustment) for date in schedule]
 
+    # Sort the payment dates
     return sorted(schedule)

@@ -4,15 +4,6 @@ from functools import total_ordering
 from typing import Optional
 
 
-class Benchmark(str, Enum):
-    """
-    Floating interest rates benchmarks.
-    """
-
-    ESTER = "ESTER"
-    SONIA = "SONIA"
-
-
 class Compounding(str, Enum):
     """
     Interest rates compounding conventions.

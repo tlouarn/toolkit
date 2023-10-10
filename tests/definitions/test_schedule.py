@@ -11,7 +11,7 @@ from definitions.stub import StubConvention
 
 def test_generate_schedule():
     """
-    Build a payment schedule for a 5Y LIBOR USD 3M fixed/floating IRS.
+    Generate a payment schedule for a 5Y LIBOR USD 3M fixed/floating IRS.
     https://www.r-bloggers.com/2021/07/interest-rate-swap-pricing-using-r-code/
     """
 
@@ -67,4 +67,38 @@ def test_generate_schedule():
         Date.parse("2026-01-02"),
         Date.parse("2026-04-02"),
         Date.parse("2026-07-02"),
+    ]
+
+
+def test_generate_schedule_2():
+    """
+    Generate a payment schedule for a 5Y LIBOR USD 6M fixed/floating IRS.
+    http://www.derivativepricing.com/blogpage.asp?id=8
+    """
+
+    # Common parameters
+    start = Date(2011, 11, 14)
+    tenor = Period.parse("5Y")
+    step = Period.parse("6M")
+    holidays = country_holidays("US")
+    adjustment = BusinessDayConvention.MODIFIED_FOLLOWING
+    stub = StubConvention.FRONT
+
+    # Both the fixed and floating legs
+    # share the same schedule
+    schedule = generate_schedule(
+        start=start, tenor=tenor, step=step, holidays=holidays, adjustment=adjustment, stub=stub
+    )
+
+    assert schedule == [
+        Date.parse("2012-05-14"),
+        Date.parse("2012-11-14"),
+        Date.parse("2013-05-14"),
+        Date.parse("2013-11-14"),
+        Date.parse("2014-05-14"),
+        Date.parse("2014-11-14"),
+        Date.parse("2015-05-14"),
+        Date.parse("2015-11-16"),
+        Date.parse("2016-05-16"),
+        Date.parse("2016-11-14"),
     ]

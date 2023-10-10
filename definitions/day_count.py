@@ -10,7 +10,7 @@ from definitions.date_range import DateRange
 # https://www.isda.org/a/mIJEE/30-360-2006ISDADefs.xls
 
 
-class DayCount(str, Enum):
+class DayCountConvention(str, Enum):
     """
     Day-count conventions.
     30E/360: Eurobond Basis
@@ -24,7 +24,7 @@ class DayCount(str, Enum):
     THIRTY_I_360 = "30I/360"
 
 
-def year_fraction(start_date: Date, end_date: Date, day_count: DayCount) -> Decimal:
+def year_fraction(start_date: Date, end_date: Date, day_count: DayCountConvention) -> Decimal:
     """
     Compute the fraction of year between two dates.
     Used to compute the accrued interests on a wide range of financial instruments.
@@ -32,7 +32,7 @@ def year_fraction(start_date: Date, end_date: Date, day_count: DayCount) -> Deci
     calendar_days = (end_date - start_date).days
 
     match day_count:
-        case DayCount.THIRTY_E_360:
+        case DayCountConvention.THIRTY_E_360:
             """
             This implementation follows the 30E/360 "Eurobond Basis" definition.
             2006 ISDA definitions 4.16g
@@ -46,7 +46,7 @@ def year_fraction(start_date: Date, end_date: Date, day_count: DayCount) -> Deci
             days += end_date.day - start_date.day
             return Decimal(days) / Decimal(360)
 
-        case DayCount.THIRTY_I_360:
+        case DayCountConvention.THIRTY_I_360:
             """
             This implementation follows the 30I/360 "Bond basis" definition.
             2006 ISDA definitions 4.16f
@@ -66,13 +66,13 @@ def year_fraction(start_date: Date, end_date: Date, day_count: DayCount) -> Deci
             days += end_date.day - start_date.day
             return Decimal(days) / Decimal(360)
 
-        case DayCount.ACTUAL_360:
+        case DayCountConvention.ACTUAL_360:
             return Decimal(calendar_days) / Decimal(360)
 
-        case DayCount.ACTUAL_365:
+        case DayCountConvention.ACTUAL_365:
             return Decimal(calendar_days) / Decimal(365)
 
-        case DayCount.ACTUAL_ACTUAL:
+        case DayCountConvention.ACTUAL_ACTUAL:
             """
             This implementation follows the ACT/ACT ISDA definition.
             https://www.isda.org/a/pIJEE/The-Actual-Actual-Day-Count-Fraction-1999.pdf

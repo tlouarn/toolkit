@@ -9,7 +9,7 @@ from holidays import HolidayBase, financial_holidays
 
 from definitions.adjustment import BusinessDayConvention, adjust_date
 from definitions.date import Date
-from definitions.day_count import DayCount
+from definitions.day_count import DayCountConvention
 from definitions.interest_rate import Compounding
 from definitions.period import Period
 
@@ -36,11 +36,11 @@ class Way:
 @dataclass
 class OvernightIndex:
     name: str
-    day_count: DayCount
+    day_count: DayCountConvention
     lag: Period
 
 
-ESTER = OvernightIndex("ESTER", DayCount.ACTUAL_360, 0)
+ESTER = OvernightIndex("ESTER", DayCountConvention.ACTUAL_360, 0)
 
 
 class OvernightIndex(str, Enum):
@@ -71,13 +71,13 @@ payment_frequencies = Literal["1M", "3M", "1T"]  # 1T = "TERM" = bullet payment 
 
 class FixedLeg:
     payment_frequency: Period
-    day_count: DayCount
+    day_count: DayCountConvention
     compounding: Compounding
 
 
 class FloatingLeg:
     payment_frequency: Period
-    day_count: DayCount
+    day_count: DayCountConvention
     compounding: Compounding
 
 
