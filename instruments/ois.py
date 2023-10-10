@@ -1,5 +1,6 @@
 # From QuantLib
 from dataclasses import dataclass
+from decimal import Decimal
 from enum import Enum
 from typing import Literal
 
@@ -46,6 +47,16 @@ class OvernightIndex(str, Enum):
     SONIA = "SONIA"
 
 
+@dataclass
+class Benchmark:
+    name: str
+    fixing: Date
+    publication: Date
+    start: Date
+    end: Date
+    value: Decimal
+
+
 payment_frequencies = Literal["1M", "3M", "1T"]  # 1T = "TERM" = bullet payment = only one payment at maturity
 
 
@@ -79,7 +90,7 @@ class OIS:
 
 
 def make_ois_schedule(
-    start_date: Date, tenor: Period, step: Period, holidays: HolidayBase, adjustment: Adjustment
+        start_date: Date, tenor: Period, step: Period, holidays: HolidayBase, adjustment: Adjustment
 ) -> list[Date]:
     schedule = []
 
@@ -117,3 +128,8 @@ if __name__ == "__main__":
     schedule = make_ois_schedule(start_date, tenor, step, holidays, adjustment)
 
     a = 1
+
+
+
+# Fitting to a step curve
+# ECB meetings effective dates
