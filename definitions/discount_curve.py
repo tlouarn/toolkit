@@ -32,3 +32,9 @@ class DiscountCurve:
     def compute_discount_factor(self, start: Date, end: Date) -> DiscountFactor:
         # Interpolate using a preferred method CONSTANT_FORWARD_RATES
         pass
+
+    def get(self, date: Date) -> DiscountFactor:
+
+
+    def interpolate(self, start: Date, end: Date) -> DiscountFactor:
+        pass

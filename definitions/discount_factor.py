@@ -5,7 +5,6 @@ from decimal import Decimal
 
 from definitions.date import Date
 from definitions.interest_rate import InterestRate
-from instruments.deposit import Deposit
 
 
 @dataclass
