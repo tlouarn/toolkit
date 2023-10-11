@@ -9,37 +9,47 @@ from definitions.day_count import DayCountConvention
 from definitions.interest_rate import InterestRate
 from definitions.payment_frequency import PaymentFrequency
 from definitions.period import Period
-from definitions.schedule import generate_schedule
-from definitions.stub import StubConvention
 from instruments.interest_rate_swap import FixedLeg
 
 
 def test_instantiate_fixed_floating_irs():
     # http://www.derivativepricing.com/blogpage.asp?id=8
 
-    # Commong parameters
-    effective_date = Date(2011, 11, 14)
-    tenor = Period.parse("5Y")
-    payment_frequency = PaymentFrequency("SemiAnnual")
-    holidays = country_holidays("US")
+    # Common parameters
+    start = Date(2011, 11, 14)
+    maturity = start + Period.parse("5Y")
+    notional = Money(1_000_000, "USD")
+    fixed_rate = InterestRate(Decimal("0.0124"))
 
-    schedule = generate_schedule(
-        start=effective_date,
-        tenor=tenor,
-        step=Period.parse("6M"),
-        holidays=holidays,
-        adjustment=BusinessDayConvention.MODIFIED_FOLLOWING,
-        stub=StubConvention.FRONT,
-    )
-
-    fixed_leg = FixedLeg(
-        effective_date=effective_date,
-        notional=Money(1_000_000, "USD"),
-        coupon=InterestRate(Decimal("0.0124")),
-        schedule=schedule,
+    # Generate fixed leg
+    fixed_leg = FixedLeg.generate(
+        start=start,
+        maturity=maturity,
+        notional=notional,
+        coupon_rate=fixed_rate,
         day_count=DayCountConvention.THIRTY_I_360,
+        payment_frequency=PaymentFrequency.SEMI_ANNUAL,
+        bus_day=BusinessDayConvention.MODIFIED_FOLLOWING,
+        holidays=country_holidays("US"),
     )
 
-    coupons = fixed_leg.coupons
+    floating_leg = FloatingLeg.generate(
+        start=start,
+        maturity=maturity,
+        notional=notional,
+        day_count=DayCountConvention.THIRTY_I_360,
+        payment_frequency=PaymentFrequency.SEMI_ANNUAL,
+        bus_day=BusinessDayConvention.MODIFIED_FOLLOWING,
+        holidays=country_holidays("US"),
+    )
 
-    a = 1
+    swap = InterestRateSwap(fixed_leg=fixed_leg, floating_leg=floating_leg)
+
+    swap = libor_usd_3m_swap(start=start, tenor=tenor)
+    value = swap.price(discount_curve)
+
+    while value > 0:
+        swap.update_fixed_coupon()
+
+    swap = LiborUsd3MSwap()
+    swap = EuriborSixMonthsSwap(start=start, tenor=tenor)

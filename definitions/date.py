@@ -28,6 +28,10 @@ class Weekday(str, Enum):
     SUN = "SUN"
 
 
+ENDS_OF_MONTHS = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31]
+ENDS_OF_MONTHS_LEAP_YEAR = [31, 29, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31]
+
+
 @total_ordering
 class Date:
     def __init__(self, year: int, month: int, day: int):
@@ -116,6 +120,22 @@ class Date:
     def is_leap_year(self) -> bool:
         return self.year % 4 == 0 and (self.year % 100 != 0 or self.year % 400 == 0)
 
+    @property
+    def is_eom(self) -> bool:
+        """
+        Check whether the current Date is the end of month.
+        """
+        ends_of_months = ENDS_OF_MONTHS_LEAP_YEAR if self.is_leap_year else ENDS_OF_MONTHS
+        return self.day == ends_of_months[self.month - 1]
+
+    def get_eom(self) -> Date:
+        """
+        Return a new Date corresponding to the last day of the current month.
+        """
+        ends_of_months = ENDS_OF_MONTHS_LEAP_YEAR if self.is_leap_year else ENDS_OF_MONTHS
+        last_day = ends_of_months[self.month - 1]
+        return Date(self.year, self.month, last_day)
+
     def __add__(self, other: Period) -> Date:
         """
         Adding a Period to a Date returns a new Date.
@@ -144,6 +164,9 @@ class Date:
 
         else:
             raise InvalidOperation(f"Only a Date or a Period can be subtracted from a Date")
+
+    def __hash__(self):
+        return hash((self.year, self.month, self.day))
 
     @staticmethod
     def _add_delta(date: dt.date, period: Period):

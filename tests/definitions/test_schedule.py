@@ -9,7 +9,7 @@ from definitions.schedule import generate_schedule
 from definitions.stub import StubConvention
 
 
-def test_generate_schedule():
+def test_generate_schedules_3m_6m():
     """
     Generate a payment schedule for a 5Y LIBOR USD 3M fixed/floating IRS.
     https://www.r-bloggers.com/2021/07/interest-rate-swap-pricing-using-r-code/
@@ -17,20 +17,20 @@ def test_generate_schedule():
 
     # Common parameters
     start = Date(2021, 7, 2)
-    tenor = Period.parse("5Y")
+    maturity = start + Period.parse("5Y")
     holidays = country_holidays("US")
-    holidays.update(datetime.date(2022, 1, 3))  # Temp fix, somehow 3 JAN 2022 is not seen as a holiday
+    holidays.update(datetime.date(2022, 1, 3))  # TODO fix, somehow 3 JAN 2022 is not seen as a holiday
     adjustment = BusinessDayConvention.MODIFIED_FOLLOWING
     stub = StubConvention.FRONT
 
     # The fixed leg schedule has semi-annual payments
     fixed_leg_schedule = generate_schedule(
-        start=start, tenor=tenor, step=Period.parse("6M"), holidays=holidays, adjustment=adjustment, stub=stub
+        start=start, maturity=maturity, step=Period.parse("6M"), holidays=holidays, bus_day=adjustment, stub=stub
     )
 
     # The floating leg schedule has quarterly payments
     floating_leg_schedule = generate_schedule(
-        start=start, tenor=tenor, step=Period.parse("3M"), holidays=holidays, adjustment=adjustment, stub=stub
+        start=start, maturity=maturity, step=Period.parse("3M"), holidays=holidays, bus_day=adjustment, stub=stub
     )
 
     assert fixed_leg_schedule == [
@@ -70,7 +70,7 @@ def test_generate_schedule():
     ]
 
 
-def test_generate_schedule_2():
+def test_generate_schedule_6m():
     """
     Generate a payment schedule for a 5Y LIBOR USD 6M fixed/floating IRS.
     http://www.derivativepricing.com/blogpage.asp?id=8
@@ -78,7 +78,7 @@ def test_generate_schedule_2():
 
     # Common parameters
     start = Date(2011, 11, 14)
-    tenor = Period.parse("5Y")
+    maturity = start + Period.parse("5Y")
     step = Period.parse("6M")
     holidays = country_holidays("US")
     adjustment = BusinessDayConvention.MODIFIED_FOLLOWING
@@ -87,7 +87,7 @@ def test_generate_schedule_2():
     # Both the fixed and floating legs
     # share the same schedule
     schedule = generate_schedule(
-        start=start, tenor=tenor, step=step, holidays=holidays, adjustment=adjustment, stub=stub
+        start=start, maturity=maturity, step=step, holidays=holidays, bus_day=adjustment, stub=stub
     )
 
     assert schedule == [

@@ -3,10 +3,11 @@ import datetime as dt
 import pytest
 
 from definitions.date import Date, InvalidDateString
+from definitions.date_range import DateRange
 from definitions.period import Days, Period
 
 
-def test_create_date():
+def test_constructor():
     date = Date(2023, 9, 18)
 
     assert date.year == 2023
@@ -72,7 +73,7 @@ def test_subtract_date():
     assert date_2 - date_1 == Days(30)
 
 
-def test_instantiate_imm_date():
+def test_constructor_imm_date():
     date = Date.imm(12, 2023)
 
     assert date == Date(2023, 12, 20)
@@ -133,3 +134,15 @@ def test_is_leap_year():
 
     assert Date(2400, 1, 1).is_leap_year
     assert Date(1600, 1, 1).is_leap_year
+
+
+def test_is_eom():
+    assert Date(2024, 1, 31).is_eom
+    assert Date(2024, 2, 29).is_eom
+    assert Date(2023, 2, 28).is_eom
+
+    assert not Date(2024, 2, 28).is_eom
+    assert not Date(2023, 1, 30).is_eom
+
+    assert sum(1 if date.is_eom else 0 for date in DateRange(Date(2023, 1, 1), Date(2024, 1, 1))) == 12
+    assert sum(1 if date.is_eom else 0 for date in DateRange(Date(2024, 1, 1), Date(2025, 1, 1))) == 12

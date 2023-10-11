@@ -8,4 +8,4 @@ class PaymentFrequency(str, Enum):
 
     ANNUAL = "Annual"
     SEMI_ANNUAL = "SemiAnnual"
-    QUARTER = "Quarter"
+    QUARTERLY = "Quarterly"

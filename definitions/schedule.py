@@ -11,35 +11,28 @@ Schedule = list[Date]
 
 def generate_schedule(
     start: Date,
-    tenor: Period,
+    maturity: Date,
     step: Period,
     holidays: HolidayBase,
-    adjustment: BusinessDayConvention,
+    bus_day: BusinessDayConvention,
     stub: StubConvention,
 ) -> Schedule:
     """
     Generate a payment Schedule.
 
     :param start: Date
-    :param tenor: Tenor expressed as a Period (e.g. "5Y")
-    :param step: Period used to compute regular steps (e.g. "3M")
+    :param maturity: Date
+    :param step: Period used to compute the regular steps (e.g. "3M")
     :param holidays: List of holidays
-    :param adjustment: BusinessDayConvention adjustment
+    :param bus_day: BusinessDayConvention adjustment
     :param stub: Front or Back stub
     :return: An ordered list of Date
     """
     # Initialize schedule
     schedule = []
 
-    # Ensure maturity is > start
-    if tenor.quantity <= 0:
-        raise ValueError(f"Schedule tenor cannot be negative (value received={str(tenor)}).")
-
-    # Compute maturity
-    maturity = start + tenor
-
     # Adjust maturity
-    maturity = adjust_date(maturity, holidays, adjustment)
+    maturity = adjust_date(maturity, holidays, bus_day)
     schedule.append(maturity)
 
     # Exit if the maturity is closer than a step
@@ -63,7 +56,7 @@ def generate_schedule(
             date = date + step
 
     # Adjust intermediary payment dates
-    schedule = [adjust_date(date, holidays, adjustment) for date in schedule]
+    schedule = [adjust_date(date, holidays, bus_day) for date in schedule]
 
     # Sort the payment dates
     return sorted(schedule)

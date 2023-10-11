@@ -8,4 +8,4 @@ class Benchmark(str, Enum):
 
     LIBOR_USD_3M = "LIBOR_USD_3M"
     LIBOR_USD_6M = "LIBOR_USD_6M"
-    ESTER = "ESTER"
+    ESTER_EUR_1D = "ESTER_EUR_1D"

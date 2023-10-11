@@ -1,13 +1,19 @@
+from __future__ import annotations
+
 from dataclasses import dataclass
 
+from holidays import HolidayBase
 from money import Money
 
 from definitions.benchmark import Benchmark
+from definitions.business_day_convention import BusinessDayConvention
 from definitions.date import Date
 from definitions.day_count import DayCountConvention, year_fraction
 from definitions.interest_rate import InterestRate
 from definitions.payment_frequency import PaymentFrequency
-from definitions.schedule import Schedule
+from definitions.period import Period
+from definitions.schedule import generate_schedule
+from definitions.stub import StubConvention
 
 """
 Modeling problem: actual swap object vs handlers to generate parts of the object.
@@ -50,24 +56,79 @@ class Coupon:
 
 @dataclass
 class FixedLeg:
-    effective_date: Date
-    notional: Money
-    coupon: InterestRate
-    schedule: Schedule
-    day_count: DayCountConvention
+    coupons: list[Coupon]
 
-    @property
-    def coupons(self) -> list[Coupon]:
+    @classmethod
+    def generate(
+        cls,
+        start: Date,
+        maturity: Date,
+        notional: Money,
+        coupon_rate: InterestRate,
+        day_count: DayCountConvention,
+        payment_frequency: PaymentFrequency,
+        bus_day: BusinessDayConvention,
+        holidays: HolidayBase,
+    ) -> FixedLeg:
+        """
+        Generate a FixedLeg, i.e. a sequence of coupons.
+        """
+
+        # Convert payment frequency to period
+        match payment_frequency:
+            case PaymentFrequency.ANNUAL:
+                step = Period.parse("12M")
+            case PaymentFrequency.SEMI_ANNUAL:
+                step = Period.parse("6M")
+            case PaymentFrequency.QUARTERLY:
+                step = Period.parse("3M")
+            case _:
+                raise ValueError(f"Invalid PaymentFrequency: {payment_frequency}")
+
+        # Generate a payment schedule
+        schedule = generate_schedule(
+            start=start, maturity=maturity, step=step, holidays=holidays, bus_day=bus_day, stub=StubConvention.FRONT
+        )
+
+        # Compute coupons
         coupons = []
-        start_dates = [self.effective_date] + [date for date in self.schedule[:-1]]
-        end_dates = [date for date in self.schedule]
-
+        start_dates = [start] + [date for date in schedule[:-1]]
+        end_dates = [date for date in schedule]
         for dates in zip(start_dates, end_dates):
-            fraction = year_fraction(dates[0], dates[1], self.day_count)
-            coupon = Coupon(start=dates[0], end=dates[1], amount=self.notional * self.coupon.rate * fraction)
+            fraction = year_fraction(dates[0], dates[1], day_count)
+            amount = notional * coupon_rate.rate * fraction
+            coupon = Coupon(start=dates[0], end=dates[1], amount=amount)
             coupons.append(coupon)
 
-        return coupons
+        # Return coupons
+        return FixedLeg(coupons=coupons)
+
+
+@dataclass
+class FloatingLeg:
+    coupons: list[Coupon]
+
+
+# @dataclass
+# class FixedLeg:
+#     effective_date: Date
+#     notional: Money
+#     coupon: InterestRate
+#     schedule: Schedule
+#     day_count: DayCountConvention
+#
+#     @property
+#     def coupons(self) -> list[Coupon]:
+#         coupons = []
+#         start_dates = [self.effective_date] + [date for date in self.schedule[:-1]]
+#         end_dates = [date for date in self.schedule]
+#
+#         for dates in zip(start_dates, end_dates):
+#             fraction = year_fraction(dates[0], dates[1], self.day_count)
+#             coupon = Coupon(start=dates[0], end=dates[1], amount=self.notional * self.coupon.rate * fraction)
+#             coupons.append(coupon)
+#
+#         return coupons
 
 
 @dataclass
@@ -78,12 +139,12 @@ class FloatingLeg:
     day_count: DayCountConvention
 
 
-class FixedFloatingInterestRateSwap:
-    def __init__(self, effective: Date, maturity: Date, fixed_leg: FixedLeg, floating_leg: FloatingLeg) -> None:
-        self.effective = effective
-        self.maturity = maturity
-        self.fixed_leg = fixed_leg
-        self.floating_leg = floating_leg
-
-    def solve(self):
-        pass
+# class FixedFloatingInterestRateSwap:
+#     def __init__(self, effective: Date, maturity: Date, fixed_leg: FixedLeg, floating_leg: FloatingLeg) -> None:
+#         self.effective = effective
+#         self.maturity = maturity
+#         self.fixed_leg = fixed_leg
+#         self.floating_leg = floating_leg
+#
+#     def solve(self):
+#         pass
