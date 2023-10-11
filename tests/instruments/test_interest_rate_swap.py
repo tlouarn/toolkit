@@ -29,7 +29,7 @@ def test_instantiate_fixed_floating_irs():
         coupon_rate=fixed_rate,
         day_count=DayCountConvention.THIRTY_I_360,
         payment_frequency=PaymentFrequency.SEMI_ANNUAL,
-        bus_day=BusinessDayConvention.MODIFIED_FOLLOWING,
+        convention=BusinessDayConvention.MODIFIED_FOLLOWING,
         holidays=country_holidays("US"),
     )
 
@@ -39,7 +39,7 @@ def test_instantiate_fixed_floating_irs():
         notional=notional,
         day_count=DayCountConvention.THIRTY_I_360,
         payment_frequency=PaymentFrequency.SEMI_ANNUAL,
-        bus_day=BusinessDayConvention.MODIFIED_FOLLOWING,
+        convention=BusinessDayConvention.MODIFIED_FOLLOWING,
         holidays=country_holidays("US"),
     )
 

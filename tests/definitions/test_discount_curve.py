@@ -8,7 +8,7 @@ from definitions.day_count import DayCountConvention
 from definitions.discount_curve import DiscountCurve
 from definitions.discount_factor import DiscountFactor
 from definitions.interest_rate import Compounding
-from definitions.period import Days, Months, Period, Weeks, Years
+from definitions.period import Days, Months, Weeks, Years
 
 
 def test_instantiate_discount_curve():
@@ -125,7 +125,7 @@ def test_quantnet_using_toolkit():
     settlement_date = start + Days(2)
     settlement_date = adjust_date(settlement_date, holidays, bus_day)
 
-    dates = [
+    unadjusted_dates = [
         settlement_date + Days(0),
         settlement_date + Days(1),
         settlement_date + Weeks(1),
@@ -159,24 +159,26 @@ def test_quantnet_using_toolkit():
 
     # Build discount factors
     discount_factors = []
-    for date, df in zip(dates, dfs):
-        end = adjust_date(date=settlement_date + date, holidays=holidays, adjustment=bus_day)
-        discount_factor = DiscountFactor(start=start, end=end, factor=df)
+    for date, df in zip(unadjusted_dates, dfs):
+        end = adjust_date(date=date, holidays=holidays, convention=bus_day)
+        discount_factor = DiscountFactor(start=settlement_date, end=end, factor=df)
         discount_factors.append(discount_factor)
 
     # Build discount curve
     discount_curve = DiscountCurve(discount_factors=discount_factors)
 
     # Test 1: zero rate
-    date_1 = settlement_date + Period.parse("1Y") + Period.parse("3M")
+    date_1 = settlement_date + Years(1) + Months(3)
     date_1 = adjust_date(date_1, holidays, bus_day)
-    # assert discount_curve.get(date_1).to_rate() == InterestRate(Decimal("0.01107998"), Compounding.)
+    discount_factor = discount_curve.get(date_1)
+    zero_rate = discount_factor.to_rate().annualized  #TODO fix
+    assert zero_rate == Decimal("0.01107998")
 
     # Test 2: spot discount factor
     assert discount_curve.get(date_1).factor == Decimal("0.9861596")
 
     # Test 3: forward rate
-    date_2 = date_1 + Period.parse("3M")
+    date_2 = date_1 + Months(3)
     expected = Decimal("0.01887223")
     actual = discount_curve.forward_rate(date_1, date_2, day_count, Compounding.CONTINUOUS).rate
     assert round(actual, 8) == expected

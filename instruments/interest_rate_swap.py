@@ -6,7 +6,7 @@ from holidays import HolidayBase
 from money import Money
 
 from definitions.benchmark import Benchmark
-from definitions.business_day_convention import BusinessDayConvention
+from definitions.business_day import BusinessDayConvention
 from definitions.date import Date
 from definitions.day_count import DayCountConvention, year_fraction
 from definitions.interest_rate import InterestRate
@@ -67,7 +67,7 @@ class FixedLeg:
         coupon_rate: InterestRate,
         day_count: DayCountConvention,
         payment_frequency: PaymentFrequency,
-        bus_day: BusinessDayConvention,
+        convention: BusinessDayConvention,
         holidays: HolidayBase,
     ) -> FixedLeg:
         """
@@ -87,7 +87,7 @@ class FixedLeg:
 
         # Generate a payment schedule
         schedule = generate_schedule(
-            start=start, maturity=maturity, step=step, holidays=holidays, bus_day=bus_day, stub=StubConvention.FRONT
+            start=start, maturity=maturity, step=step, holidays=holidays, convention=convention, stub=StubConvention.FRONT
         )
 
         # Compute coupons

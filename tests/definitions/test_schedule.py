@@ -2,9 +2,9 @@ import datetime
 
 from holidays import country_holidays
 
-from definitions.business_day_convention import BusinessDayConvention
+from definitions.business_day import BusinessDayConvention
 from definitions.date import Date
-from definitions.period import Period
+from definitions.period import Months, Years
 from definitions.schedule import generate_schedule
 from definitions.stub import StubConvention
 
@@ -13,24 +13,26 @@ def test_generate_schedules_3m_6m():
     """
     Generate a payment schedule for a 5Y LIBOR USD 3M fixed/floating IRS.
     https://www.r-bloggers.com/2021/07/interest-rate-swap-pricing-using-r-code/
+
+    The fixed leg has semi-annual payments and the floating leg has quarterly payments.
     """
 
     # Common parameters
     start = Date(2021, 7, 2)
-    maturity = start + Period.parse("5Y")
+    maturity = start + Years(5)
     holidays = country_holidays("US")
     holidays.update(datetime.date(2022, 1, 3))  # TODO fix, somehow 3 JAN 2022 is not seen as a holiday
-    adjustment = BusinessDayConvention.MODIFIED_FOLLOWING
+    convention = BusinessDayConvention.MODIFIED_FOLLOWING
     stub = StubConvention.FRONT
 
     # The fixed leg schedule has semi-annual payments
     fixed_leg_schedule = generate_schedule(
-        start=start, maturity=maturity, step=Period.parse("6M"), holidays=holidays, bus_day=adjustment, stub=stub
+        start=start, maturity=maturity, step=Months(6), holidays=holidays, convention=convention, stub=stub
     )
 
     # The floating leg schedule has quarterly payments
     floating_leg_schedule = generate_schedule(
-        start=start, maturity=maturity, step=Period.parse("3M"), holidays=holidays, bus_day=adjustment, stub=stub
+        start=start, maturity=maturity, step=Months(3), holidays=holidays, convention=convention, stub=stub
     )
 
     assert fixed_leg_schedule == [
@@ -74,20 +76,22 @@ def test_generate_schedule_6m():
     """
     Generate a payment schedule for a 5Y LIBOR USD 6M fixed/floating IRS.
     http://www.derivativepricing.com/blogpage.asp?id=8
+
+    Both legs share the same semi-annual payment schedule.
     """
 
     # Common parameters
     start = Date(2011, 11, 14)
-    maturity = start + Period.parse("5Y")
-    step = Period.parse("6M")
+    maturity = start + Years(5)
+    step = Months(6)
     holidays = country_holidays("US")
-    adjustment = BusinessDayConvention.MODIFIED_FOLLOWING
+    convention = BusinessDayConvention.MODIFIED_FOLLOWING
     stub = StubConvention.FRONT
 
     # Both the fixed and floating legs
     # share the same schedule
     schedule = generate_schedule(
-        start=start, maturity=maturity, step=step, holidays=holidays, bus_day=adjustment, stub=stub
+        start=start, maturity=maturity, step=step, holidays=holidays, convention=convention, stub=stub
     )
 
     assert schedule == [

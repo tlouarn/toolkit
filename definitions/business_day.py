@@ -9,6 +9,7 @@ from definitions.period import Days
 class BusinessDayConvention(str, Enum):
     """
     Business day adjustment conventions.
+
     Usage:
     - convention = BusinessDayConvention("ModifiedFollowing")
     - convention = BusinessDayConvention.MODIFIED_FOLLOWING
@@ -61,11 +62,11 @@ def modified_following(date: Date, holidays: HolidayBase) -> Date:
     return previous(date, holidays)
 
 
-def adjust_date(date: Date, holidays: HolidayBase, adjustment: BusinessDayConvention) -> Date:
+def adjust_date(date: Date, holidays: HolidayBase, convention: BusinessDayConvention) -> Date:
     """
     Base method to adjust a date based on given holidays and a business day convention.
     """
-    match adjustment:
+    match convention:
         case BusinessDayConvention.UNADJUSTED:
             return date
         case BusinessDayConvention.PREVIOUS:

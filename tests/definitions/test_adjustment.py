@@ -1,20 +1,20 @@
 from holidays import financial_holidays
 
-from definitions.adjustment import BusinessDayConvention, adjust_date
+from definitions.business_day import BusinessDayConvention, adjust_date
 from definitions.date import Date
 
 
-# TODO issue modifying in-place vs returning a new value
+def test_instantiate_convention():
+    convention = BusinessDayConvention("ModifiedFollowing")
+
+    assert convention == BusinessDayConvention.MODIFIED_FOLLOWING
 
 
-def test_create_adjustment():
-    adjustment = BusinessDayConvention("ModifiedFollowing")
-
-    assert adjustment == BusinessDayConvention.MODIFIED_FOLLOWING
-
-
-def test_adjust():
+def test_adjust_date():
     date = Date(2023, 12, 25)
-    adjusted_date = adjust_date(date, financial_holidays("ECB"), BusinessDayConvention.MODIFIED_FOLLOWING)
+    holidays = financial_holidays("ECB")
+    bus_day = BusinessDayConvention.MODIFIED_FOLLOWING
+
+    adjusted_date = adjust_date(date=date, holidays=holidays, convention=bus_day)
 
     assert adjusted_date == Date(2023, 12, 27)

@@ -6,7 +6,7 @@ from typing import Optional
 
 class Compounding(str, Enum):
     """
-    Interest rates compounding conventions.
+    Interest rates compounding frequencies.
     """
 
     YEARLY = "Yearly"
