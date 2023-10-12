@@ -102,6 +102,15 @@ def test_constructor_third_friday():
     assert date == Date(2023, 12, 15)
 
 
+def test_from_excel():
+    """
+    Test conversions between Excel serial numbers and Date objects.
+    """
+    assert Date.from_excel(367) == Date(1901, 1, 1)
+    assert Date.from_excel(48000) == Date(2031, 6, 1)
+    assert Date.from_excel(30000).to_excel() == 30000
+
+
 def test_str():
     date = Date(2023, 9, 18)
 
@@ -152,5 +161,6 @@ def test_is_eom():
     assert not Date(2024, 2, 28).is_eom
     assert not Date(2023, 1, 30).is_eom
 
+    # Test that there are 12 ends of months per year
     assert sum(1 if date.is_eom else 0 for date in DateRange(Date(2023, 1, 1), Date(2024, 1, 1))) == 12
     assert sum(1 if date.is_eom else 0 for date in DateRange(Date(2024, 1, 1), Date(2025, 1, 1))) == 12

@@ -4,7 +4,8 @@ from dataclasses import dataclass
 from decimal import Decimal
 
 from definitions.date import Date
-from definitions.interest_rate import CompoundingFrequency, InterestRate
+from definitions.interest_rate import InterestRate
+from definitions.frequency import Frequency
 
 
 @dataclass(frozen=True, eq=True)
@@ -32,4 +33,4 @@ class DiscountFactor:
         Convert the discount factor to a continuously compounded rate with ACT/360 day count.
         """
         rate = -Decimal.ln(self.factor) * Decimal(360) / max(Decimal(self.days), Decimal(1))
-        return InterestRate(rate=rate, compounding=CompoundingFrequency.CONTINUOUS)
+        return InterestRate(rate=rate, compounding=Frequency.CONTINUOUS)

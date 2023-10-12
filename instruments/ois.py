@@ -10,7 +10,7 @@ from holidays import HolidayBase, financial_holidays
 from definitions.adjustment import BusinessDayConvention, adjust_date
 from definitions.date import Date
 from definitions.day_count import DayCountConvention
-from definitions.interest_rate import CompoundingFrequency
+from definitions.frequency import Frequency
 from definitions.period import Period
 
 swapType = ql.OvernightIndexedSwap.Receiver
@@ -72,13 +72,13 @@ payment_frequencies = Literal["1M", "3M", "1T"]  # 1T = "TERM" = bullet payment 
 class FixedLeg:
     payment_frequency: Period
     day_count: DayCountConvention
-    compounding: CompoundingFrequency
+    compounding: Frequency
 
 
 class FloatingLeg:
     payment_frequency: Period
     day_count: DayCountConvention
-    compounding: CompoundingFrequency
+    compounding: Frequency
 
 
 class OIS:

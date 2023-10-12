@@ -5,7 +5,8 @@ from decimal import Decimal
 
 from definitions.date import Date
 from definitions.day_count import DayCountConvention
-from definitions.interest_rate import CompoundingFrequency, InterestRate
+from definitions.interest_rate import InterestRate
+from definitions.frequency import Frequency
 
 
 @dataclass(frozen=True, eq=True)
@@ -28,9 +29,9 @@ class CompoundFactor:
         calendar_days = (self.end - self.start).days
         return calendar_days
 
-    def to_interest_rate(self, convention: DayCountConvention, compounding: CompoundingFrequency) -> InterestRate:
+    def to_interest_rate(self, convention: DayCountConvention, compounding: Frequency) -> InterestRate:
         """
         Convert the compound factor to a continuously compounded rate with ACT/360 day count.
         """
         rate = -Decimal.ln(self.factor) * Decimal(360) / max(Decimal(self.days), Decimal(1))
-        return InterestRate(rate=rate, compounding=CompoundingFrequency.CONTINUOUS)
+        return InterestRate(rate=rate, compounding=Frequency.CONTINUOUS)

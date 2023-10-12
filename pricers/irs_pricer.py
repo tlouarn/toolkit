@@ -7,7 +7,8 @@ from money import Money
 
 from definitions.adjustment import BusinessDayConvention
 from definitions.date import Date
-from definitions.interest_rate import InterestRate, CompoundingFrequency, DayCount
+from definitions.interest_rate import InterestRate, DayCount
+from definitions.frequency import Frequency
 from definitions.period import Period
 
 
@@ -58,7 +59,7 @@ days = period.days
 
 fraction = compute_year_fraction(start, end, DayCount("30E/360"))
 
-interest_rate = InterestRate(Decimal("0.0014575"), CompoundingFrequency("Yearly"), DayCount("30E/360"))
+interest_rate = InterestRate(Decimal("0.0014575"), Frequency("Yearly"), DayCount("30E/360"))
 
 zero_rate = (1 + interest_rate.rate * fraction)
 

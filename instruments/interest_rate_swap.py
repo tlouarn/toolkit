@@ -5,12 +5,11 @@ from dataclasses import dataclass
 from holidays import HolidayBase
 from money import Money
 
-from definitions.benchmark import Benchmark
 from definitions.business_day import BusinessDayConvention
 from definitions.date import Date
 from definitions.day_count import DayCountConvention, compute_year_fraction
+from definitions.frequency import Frequency
 from definitions.interest_rate import InterestRate
-from definitions.payment_frequency import PaymentFrequency
 from definitions.period import Period
 from definitions.schedule import generate_schedule
 from definitions.stub import StubConvention
@@ -66,7 +65,7 @@ class FixedLeg:
         notional: Money,
         coupon_rate: InterestRate,
         day_count: DayCountConvention,
-        payment_frequency: PaymentFrequency,
+        payment_frequency: Frequency,
         convention: BusinessDayConvention,
         holidays: HolidayBase,
     ) -> FixedLeg:
@@ -76,18 +75,23 @@ class FixedLeg:
 
         # Convert payment frequency to period
         match payment_frequency:
-            case PaymentFrequency.ANNUAL:
+            case Frequency.ANNUAL:
                 step = Period.parse("12M")
-            case PaymentFrequency.SEMI_ANNUAL:
+            case Frequency.SEMI_ANNUAL:
                 step = Period.parse("6M")
-            case PaymentFrequency.QUARTERLY:
+            case Frequency.QUARTERLY:
                 step = Period.parse("3M")
             case _:
-                raise ValueError(f"Invalid PaymentFrequency: {payment_frequency}")
+                raise ValueError(f"Invalid Frequency: {payment_frequency}")
 
         # Generate a payment schedule
         schedule = generate_schedule(
-            start=start, maturity=maturity, step=step, holidays=holidays, convention=convention, stub=StubConvention.FRONT
+            start=start,
+            maturity=maturity,
+            step=step,
+            holidays=holidays,
+            convention=convention,
+            stub=StubConvention.FRONT,
         )
 
         # Compute coupons
@@ -129,14 +133,6 @@ class FloatingLeg:
 #             coupons.append(coupon)
 #
 #         return coupons
-
-
-@dataclass
-class FloatingLeg:
-    benchmark: Benchmark
-    spread: InterestRate
-    payment_frequency: PaymentFrequency
-    day_count: DayCountConvention
 
 
 # class FixedFloatingInterestRateSwap:

@@ -3,7 +3,8 @@ from decimal import Decimal
 
 from definitions.date import Date
 from definitions.discount_factor import DiscountFactor
-from definitions.interest_rate import CompoundingFrequency, InterestRate
+from definitions.interest_rate import InterestRate
+from definitions.frequency import Frequency
 
 
 def test_constructor():
@@ -20,7 +21,7 @@ def test_constructor():
 
 def test_construct_from_interest_rate():
     rate = Decimal("0.03")
-    compounding = CompoundingFrequency.YEARLY
+    compounding = Frequency.ANNUAL
     interest_rate = InterestRate(rate=rate, compounding=compounding)
 
     start = Date(2023, 9, 18)
@@ -38,7 +39,7 @@ def test_to_rate():
 
     rate = Decimal("0.01161871355129264709843463263")
 
-    assert discount_factor.to_rate() == InterestRate(rate, CompoundingFrequency.CONTINUOUS)
+    assert discount_factor.to_rate() == InterestRate(rate, Frequency.CONTINUOUS)
 
     import QuantLib as ql
 

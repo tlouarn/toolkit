@@ -13,6 +13,7 @@ class BusinessDayConvention(str, Enum):
     Usage:
     - convention = BusinessDayConvention("ModifiedFollowing")
     - convention = BusinessDayConvention.MODIFIED_FOLLOWING
+    - convention = "ModifiedFollowing"
     """
 
     UNADJUSTED = "Unadjusted"
@@ -77,3 +78,5 @@ def adjust_date(date: Date, holidays: HolidayBase, convention: BusinessDayConven
             return following(date, holidays)
         case BusinessDayConvention.MODIFIED_FOLLOWING:
             return modified_following(date, holidays)
+        case _:
+            raise NotImplementedError(f"{convention}")

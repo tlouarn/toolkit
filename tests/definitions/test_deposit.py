@@ -4,12 +4,13 @@ from money import Money
 
 from definitions.date import Date
 from definitions.day_count import DayCountConvention
-from definitions.interest_rate import CompoundingFrequency, InterestRate
+from definitions.interest_rate import InterestRate
+from definitions.frequency import Frequency
 from definitions.period import Period
 from instruments.deposit import Deposit
 
 INTEREST_RATE = InterestRate(
-    rate=Decimal("0.03"), compounding=CompoundingFrequency.YEARLY, day_count=DayCountConvention.ACTUAL_360
+    rate=Decimal("0.03"), compounding=Frequency.ANNUAL, day_count=DayCountConvention.ACTUAL_360
 )
 
 

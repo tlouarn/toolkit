@@ -34,8 +34,15 @@ ENDS_OF_MONTHS_LEAP_YEAR = [31, 29, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31]
 
 @total_ordering
 class Date:
-    YEAR_MIN = 1901
-    YEAR_MAX = 2199
+    """
+    Custom date implementation.
+    Allowed dates go from January 1st 1901 to December 31st 2199.
+    """
+
+    MIN_YEAR = 1901
+    MAX_YEAR = 2199
+    MIN_EXCEL = 367
+    MAX_EXCEL = 109574
 
     def __init__(self, year: int, month: int, day: int):
         """
@@ -48,8 +55,8 @@ class Date:
         error = f"Date({year}, {month}, {day}) is invalid: "
 
         # Ensure the year is within defined boundaries
-        if not self.YEAR_MIN <= year <= self.YEAR_MAX:
-            error += f"year should be in [{self.YEAR_MIN}, {self.YEAR_MAX}]"
+        if not self.MIN_YEAR <= year <= self.MAX_YEAR:
+            error += f"year should be in [{self.MIN_YEAR}, {self.MAX_YEAR}]"
             raise ValueError(error)
         self.year = year
 
@@ -111,6 +118,17 @@ class Date:
         return Date(date.year, date.month, date.day)
 
     @classmethod
+    def from_excel(cls, serial: int) -> Date:
+        """
+        Instantiate a Date from an Excel serial date number.
+        """
+        if not cls.MIN_EXCEL < serial < cls.MAX_EXCEL:
+            raise ValueError(f"Invalid Excel serial date number: {serial}")
+
+        min_date = Date(1901, 1, 1)
+        return min_date + Days(serial - 367)
+
+    @classmethod
     def parse(cls, string: str) -> Date:
         """
         Instantiate a Date from a string.
@@ -133,6 +151,10 @@ class Date:
     def to_date(self) -> dt.date:
         return dt.date(self.year, self.month, self.day)
 
+    def to_excel(self) -> int:
+        period = self - Date(1901, 1, 1)
+        return 367 + period.days
+
     @property
     def weekday(self) -> Weekday:
         date = self.to_date()
@@ -142,6 +164,10 @@ class Date:
     @property
     def is_weekend(self) -> bool:
         return self.weekday in [Weekday.SAT, Weekday.SUN]
+
+    @property
+    def is_weekday(self) -> bool:
+        return not self.is_weekend
 
     @property
     def is_leap(self) -> bool:

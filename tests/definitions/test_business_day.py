@@ -1,3 +1,4 @@
+import pytest
 from holidays import financial_holidays
 
 from definitions.business_day import BusinessDayConvention, adjust_date
@@ -12,6 +13,11 @@ def test_instantiate_convention():
 
     assert convention == "ModifiedFollowing"
     assert convention == BusinessDayConvention.MODIFIED_FOLLOWING
+
+
+def test_unknown_convention_should_raise_error():
+    with pytest.raises(ValueError):
+        convention = BusinessDayConvention("ModifiedUnadjusted")
 
 
 def test_adjust_date():

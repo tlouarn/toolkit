@@ -3,7 +3,8 @@ from decimal import Decimal
 from enum import Enum
 
 from definitions.date import Date
-from definitions.interest_rate import CompoundingFrequency, DayCount, InterestRate
+from definitions.interest_rate import DayCount, InterestRate
+from definitions.frequency import Frequency
 from definitions.period import Days, Period, Unit
 
 
@@ -31,7 +32,7 @@ class ZeroCouponBond:
     def compute_ytm(self, date: Date, price: Decimal) -> InterestRate:
         calendar_days = (self.maturity - date).days
         day_count = DayCount.ACTUAL_360
-        compounding = CompoundingFrequency("NoCompounding")
+        compounding = Frequency("NoCompounding")
         rate = (self.par / price - 1) * 360 / calendar_days
         return InterestRate(rate=rate, day_count=day_count, compounding=compounding)
 
@@ -42,7 +43,7 @@ class Frequency(str, Enum):
 
     def to_period(self) -> Period:
         match self:
-            case Frequency.YEARLY:
+            case Frequency.ANNUAL:
                 return Period(1, Unit.YEAR)
             case Frequency.HALF_YEARLY:
                 return Period(6, Unit.MONTH)
@@ -66,7 +67,7 @@ class Bond:
 
 # https://www.jdawiseman.com/papers/finmkts/gilt_statics.html
 
-coupon = InterestRate(rate=Decimal("0.00125"), compounding=CompoundingFrequency.YEARLY, day_count=DayCount.ACTUAL_ACTUAL_ISDA)
+coupon = InterestRate(rate=Decimal("0.00125"), compounding=Frequency.YEARLY, day_count=DayCount.ACTUAL_ACTUAL_ISDA)
 
 
 def gilt(issue: Date, maturity: Date, coupon: InterestRate) -> Bond:

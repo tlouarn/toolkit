@@ -92,15 +92,15 @@ class DiscountCurve:
         factor = self.get(end).factor / self.get(start).factor
         return DiscountFactor(start=start, end=end, factor=factor)
 
-    def forward_rate(self, start: Date, end: Date, day_count: DayCountConvention, compounding: Compounding) -> InterestRate:
-        """
-        Compute a forward-starting interest rate from the curve.
-        :param start: start date
-        :param end: end date
-        :param day_count: day count convention
-        :param compounding: compounding frequency
-        :return: a forward-starting interest rate
-        """
-
-        forward_df = self.forward(start, end)
-        return forward_df.to_rate()
+    # def forward_rate(self, start: Date, end: Date, day_count: DayCountConvention, compounding: Compounding) -> InterestRate:
+    #     """
+    #     Compute a forward-starting interest rate from the curve.
+    #     :param start: start date
+    #     :param end: end date
+    #     :param day_count: day count convention
+    #     :param compounding: compounding frequency
+    #     :return: a forward-starting interest rate
+    #     """
+    #
+    #     forward_df = self.forward(start, end)
+    #     return forward_df.to_rate()
