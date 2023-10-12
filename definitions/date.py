@@ -34,36 +34,63 @@ ENDS_OF_MONTHS_LEAP_YEAR = [31, 29, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31]
 
 @total_ordering
 class Date:
+    YEAR_MIN = 1901
+    YEAR_MAX = 2199
+
     def __init__(self, year: int, month: int, day: int):
+        """
+        Main constructor to instantiate a Date object.
+        :param year:
+        :param month:
+        :param day:
+        """
+        # Base error message
+        error = f"Date({year}, {month}, {day}) is invalid: "
+
+        # Ensure the year is within defined boundaries
+        if not self.YEAR_MIN <= year <= self.YEAR_MAX:
+            error += f"year should be in [{self.YEAR_MIN}, {self.YEAR_MAX}]"
+            raise ValueError(error)
         self.year = year
+
+        # Ensure the month is valid
+        if not 1 <= month <= 12:
+            error += "month should be in [1, 12]"
+            raise ValueError(error)
         self.month = month
+
+        # Ensure the day is valid
+        ends_of_months = ENDS_OF_MONTHS_LEAP_YEAR if self.is_leap else ENDS_OF_MONTHS
+        if not 1 <= day <= ends_of_months[month - 1]:
+            error += f"day should be in [1,  {ends_of_months[month - 1]}]"
+            raise ValueError(error)
         self.day = day
 
     def __repr__(self) -> str:
-        return f"Date({self.year}, {self.month}, {self.day})"
+        return f"Date({self.year:02d}, {self.month:02d}, {self.day:02d})"
 
     def __str__(self) -> str:
-        return f"{self.year}-{self.month}-{self.day}"
+        return f"{self.year:02d}-{self.month:02d}-{self.day:02d}"
 
     @classmethod
-    def imm(cls, month: int, year: int) -> Date:
+    def imm(cls, year: int, month: int) -> Date:
         """
         IMM = International Monetary Market
         Instantiate a Date corresponding to the IMM date for a given month and year.
         The IMM date is the third Wednesday of the month .
         """
-        date = Date(15, month, year)
+        date = Date(year, month, 15)
         while date.weekday != "WED":
             date += Days(1)
         return date
 
     @classmethod
-    def third_friday(cls, month: int, year: int) -> Date:
+    def third_friday(cls, year: int, month: int) -> Date:
         """
         Instantiate a Date corresponding to the third Friday for a given month and year.
         The third Friday of the month is when most European index futures expire.
         """
-        date = Date(15, month, year)
+        date = Date(year, month, 15)
         while date.weekday != "FRI":
             date += Days(1)
         return date
@@ -117,7 +144,7 @@ class Date:
         return self.weekday in [Weekday.SAT, Weekday.SUN]
 
     @property
-    def is_leap_year(self) -> bool:
+    def is_leap(self) -> bool:
         return self.year % 4 == 0 and (self.year % 100 != 0 or self.year % 400 == 0)
 
     @property
@@ -125,14 +152,14 @@ class Date:
         """
         Check whether the current Date is the end of month.
         """
-        ends_of_months = ENDS_OF_MONTHS_LEAP_YEAR if self.is_leap_year else ENDS_OF_MONTHS
+        ends_of_months = ENDS_OF_MONTHS_LEAP_YEAR if self.is_leap else ENDS_OF_MONTHS
         return self.day == ends_of_months[self.month - 1]
 
     def get_eom(self) -> Date:
         """
         Return a new Date corresponding to the last day of the current month.
         """
-        ends_of_months = ENDS_OF_MONTHS_LEAP_YEAR if self.is_leap_year else ENDS_OF_MONTHS
+        ends_of_months = ENDS_OF_MONTHS_LEAP_YEAR if self.is_leap else ENDS_OF_MONTHS
         last_day = ends_of_months[self.month - 1]
         return Date(self.year, self.month, last_day)
 

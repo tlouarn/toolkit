@@ -3,7 +3,7 @@ from decimal import Decimal
 import pytest
 
 from definitions.date import Date
-from definitions.day_count import DayCountConvention, year_fraction
+from definitions.day_count import DayCountConvention, compute_year_fraction
 from tests.definitions.test_day_count_data import ISDA_EXAMPLES
 
 
@@ -15,7 +15,7 @@ def test_construct_daycount():
 
 @pytest.mark.parametrize("start_date,end_date,day_count,expected", ISDA_EXAMPLES)
 def test_compute_year_fraction(start_date: Date, end_date: Date, day_count: DayCountConvention, expected: Decimal):
-    assert year_fraction(start_date, end_date, day_count) == expected
+    assert compute_year_fraction(start_date, end_date, day_count) == expected
 
 
 def test_compute_year_fraction_act_365():
@@ -23,7 +23,7 @@ def test_compute_year_fraction_act_365():
     end_date = Date(2023, 10, 17)
     day_count = DayCountConvention.ACTUAL_365
 
-    fraction = year_fraction(start_date, end_date, day_count)
+    fraction = compute_year_fraction(start_date, end_date, day_count)
 
     assert fraction == Decimal(29) / Decimal(365)
 
@@ -34,8 +34,8 @@ def test_compute_year_fraction_act_act():
 
     start_date = Date(2007, 10, 1)
     end_date = Date(2008, 4, 1)
-    day_count = DayCountConvention.ACTUAL_ACTUAL
+    day_count = DayCountConvention.ACTUAL_ACTUAL_ISDA
 
-    fraction = year_fraction(start_date, end_date, day_count)
+    fraction = compute_year_fraction(start_date, end_date, day_count)
 
     assert fraction == Decimal(92) / Decimal(365) + Decimal(91) / Decimal(366)

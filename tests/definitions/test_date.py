@@ -5,6 +5,7 @@ import pytest
 from definitions.date import Date, InvalidDateString
 from definitions.date_range import DateRange
 from definitions.period import Days, Period
+from tests.definitions.test_date_data import YEARS
 
 
 def test_constructor():
@@ -15,6 +16,24 @@ def test_constructor():
     assert date.day == 18
 
 
+def test_invalid_date_raises_value_error():
+    # Test month outside of bounds
+    with pytest.raises(ValueError):
+        date = Date(2023, 15, 15)
+
+    # Test negative day value
+    with pytest.raises(ValueError):
+        date = Date(2023, 2, -1)
+
+    # Test day value outside of bounds
+    with pytest.raises(ValueError):
+        date = Date(2023, 2, 32)
+
+    # 2023 is not a leap year
+    with pytest.raises(ValueError):
+        date = Date(2023, 2, 29)
+
+
 def test_parse_valid_date_string():
     date = Date.parse("2023-09-18")
 
@@ -23,12 +42,10 @@ def test_parse_valid_date_string():
     assert date.day == 18
 
 
-def test_parse_invalid_date_string():
+def test_parse_invalid_date_strings():
     with pytest.raises(InvalidDateString):
         date = Date.parse("20230918")
 
-
-def test_parse_invalid_date_string_2():
     with pytest.raises(InvalidDateString):
         date = Date.parse("YYYY 09 18")
 
@@ -74,13 +91,13 @@ def test_subtract_date():
 
 
 def test_constructor_imm_date():
-    date = Date.imm(12, 2023)
+    date = Date.imm(2023, 12)
 
     assert date == Date(2023, 12, 20)
 
 
 def test_constructor_third_friday():
-    date = Date.third_friday(12, 2023)
+    date = Date.third_friday(2023, 12)
 
     assert date == Date(2023, 12, 15)
 
@@ -118,22 +135,13 @@ def test_is_weekend():
 
 
 def test_is_leap_year():
-    assert not Date(2001, 1, 1).is_leap_year
-    assert not Date(2021, 1, 1).is_leap_year
-
-    assert Date(2000, 1, 1).is_leap_year
-    assert Date(2004, 1, 1).is_leap_year
-    assert Date(2008, 1, 1).is_leap_year
-    assert Date(2012, 1, 1).is_leap_year
-    assert Date(2016, 1, 1).is_leap_year
-    assert Date(2020, 1, 1).is_leap_year
-    assert Date(2024, 1, 1).is_leap_year
-
-    assert not Date(2100, 1, 1).is_leap_year
-    assert not Date(1900, 1, 1).is_leap_year
-
-    assert Date(2400, 1, 1).is_leap_year
-    assert Date(1600, 1, 1).is_leap_year
+    """
+    Test data is coming from QuantLib.
+    https://github.com/lballabio/QuantLib/blob/master/ql/time/date.cpp
+    """
+    # Check that the function is correct for all years
+    # between 1901 and 2200
+    assert all(Date(1901 + i, 1, 1).is_leap == is_leap for i, is_leap in enumerate(YEARS))
 
 
 def test_is_eom():

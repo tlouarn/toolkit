@@ -7,7 +7,7 @@ from money import Money
 
 from definitions.adjustment import BusinessDayConvention
 from definitions.date import Date
-from definitions.interest_rate import InterestRate, Compounding, DayCount
+from definitions.interest_rate import InterestRate, CompoundingFrequency, DayCount
 from definitions.period import Period
 
 
@@ -48,7 +48,7 @@ schedule = make_ois_schedule(
 )
 
 # First zero rate
-from definitions.day_count import year_fraction
+from definitions.day_count import compute_year_fraction
 
 start = Date(2021, 7, 2)
 end = Date(2021, 10, 4)
@@ -56,9 +56,9 @@ end = Date(2021, 10, 4)
 period = end - start
 days = period.days
 
-fraction = year_fraction(start, end, DayCount("30E/360"))
+fraction = compute_year_fraction(start, end, DayCount("30E/360"))
 
-interest_rate = InterestRate(Decimal("0.0014575"), Compounding("Yearly"), DayCount("30E/360"))
+interest_rate = InterestRate(Decimal("0.0014575"), CompoundingFrequency("Yearly"), DayCount("30E/360"))
 
 zero_rate = (1 + interest_rate.rate * fraction)
 

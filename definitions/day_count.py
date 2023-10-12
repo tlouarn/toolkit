@@ -19,12 +19,12 @@ class DayCountConvention(str, Enum):
 
     ACTUAL_360 = "ACT/360"
     ACTUAL_365 = "ACT/365"
-    ACTUAL_ACTUAL = "ACT/ACT"  # ACT/ACT ISDA pro rata of daycount in leap year and in non-leap year
+    ACTUAL_ACTUAL_ISDA = "ACT/ACT"  # ACT/ACT ISDA pro rata of daycount in leap year and in non-leap year
     THIRTY_E_360 = "30E/360"
     THIRTY_I_360 = "30I/360"
 
 
-def year_fraction(start_date: Date, end_date: Date, day_count: DayCountConvention) -> Decimal:
+def compute_year_fraction(start_date: Date, end_date: Date, day_count: DayCountConvention) -> Decimal:
     """
     Compute the fraction of year between two dates.
     Used to compute the accrued interests on a wide range of financial instruments.
@@ -56,7 +56,6 @@ def year_fraction(start_date: Date, end_date: Date, day_count: DayCountConventio
               included in the Calculation Period or Compounding Period, unless such number would be
               31 and D1 is greater than 29, in which case D2 will be 30
             """
-            #
             start_date.day = min(start_date.day, 30)
             if start_date.day > 29:
                 end_date.day = min(end_date.day, 30)
@@ -72,11 +71,11 @@ def year_fraction(start_date: Date, end_date: Date, day_count: DayCountConventio
         case DayCountConvention.ACTUAL_365:
             return Decimal(calendar_days) / Decimal(365)
 
-        case DayCountConvention.ACTUAL_ACTUAL:
+        case DayCountConvention.ACTUAL_ACTUAL_ISDA:
             """
             This implementation follows the ACT/ACT ISDA definition.
             https://www.isda.org/a/pIJEE/The-Actual-Actual-Day-Count-Fraction-1999.pdf
             """
-            leap = sum(1 for x in DateRange(start_date, end_date) if x.is_leap_year)
+            leap = sum(1 for x in DateRange(start_date, end_date) if x.is_leap)
             non_leap = calendar_days - leap
             return Decimal(leap) / Decimal(366) + Decimal(non_leap) / Decimal(365)

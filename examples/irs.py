@@ -5,7 +5,7 @@ https://www.r-bloggers.com/2021/07/interest-rate-swap-pricing-using-r-code/
 from decimal import Decimal
 
 from definitions.date import Date
-from definitions.day_count import DayCountConvention, year_fraction
+from definitions.day_count import DayCountConvention, compute_year_fraction
 from definitions.interest_rate import InterestRate
 
 valuation = Date(2021, 7, 2)
@@ -13,7 +13,7 @@ maturity = Date(2021, 10, 4)
 
 market_rate = InterestRate(Decimal("0.0014575"))
 
-fraction = year_fraction(valuation, maturity, DayCountConvention.THIRTY_E_360)
+fraction = compute_year_fraction(valuation, maturity, DayCountConvention.THIRTY_E_360)
 
 # class PaymentFrequency:
 #     ANNUAL

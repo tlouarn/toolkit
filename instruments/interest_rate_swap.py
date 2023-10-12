@@ -8,7 +8,7 @@ from money import Money
 from definitions.benchmark import Benchmark
 from definitions.business_day import BusinessDayConvention
 from definitions.date import Date
-from definitions.day_count import DayCountConvention, year_fraction
+from definitions.day_count import DayCountConvention, compute_year_fraction
 from definitions.interest_rate import InterestRate
 from definitions.payment_frequency import PaymentFrequency
 from definitions.period import Period
@@ -95,7 +95,7 @@ class FixedLeg:
         start_dates = [start] + [date for date in schedule[:-1]]
         end_dates = [date for date in schedule]
         for dates in zip(start_dates, end_dates):
-            fraction = year_fraction(dates[0], dates[1], day_count)
+            fraction = compute_year_fraction(dates[0], dates[1], day_count)
             amount = notional * coupon_rate.rate * fraction
             coupon = Coupon(start=dates[0], end=dates[1], amount=amount)
             coupons.append(coupon)

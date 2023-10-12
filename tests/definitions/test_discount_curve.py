@@ -7,7 +7,7 @@ from definitions.date import Date
 from definitions.day_count import DayCountConvention
 from definitions.discount_curve import DiscountCurve
 from definitions.discount_factor import DiscountFactor
-from definitions.interest_rate import Compounding
+from definitions.interest_rate import CompoundingFrequency
 from definitions.period import Days, Months, Weeks, Years
 
 
@@ -171,7 +171,7 @@ def test_quantnet_using_toolkit():
     date_1 = settlement_date + Years(1) + Months(3)
     date_1 = adjust_date(date_1, holidays, bus_day)
     discount_factor = discount_curve.get(date_1)
-    zero_rate = discount_factor.to_rate().annualized  #TODO fix
+    zero_rate = discount_factor.to_rate().effective  #TODO fix
     assert zero_rate == Decimal("0.01107998")
 
     # Test 2: spot discount factor
@@ -180,5 +180,5 @@ def test_quantnet_using_toolkit():
     # Test 3: forward rate
     date_2 = date_1 + Months(3)
     expected = Decimal("0.01887223")
-    actual = discount_curve.forward_rate(date_1, date_2, day_count, Compounding.CONTINUOUS).rate
+    actual = discount_curve.forward_rate(date_1, date_2, day_count, CompoundingFrequency.CONTINUOUS).rate
     assert round(actual, 8) == expected

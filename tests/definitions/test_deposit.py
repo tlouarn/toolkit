@@ -3,12 +3,14 @@ from decimal import Decimal
 from money import Money
 
 from definitions.date import Date
+from definitions.day_count import DayCountConvention
+from definitions.interest_rate import CompoundingFrequency, InterestRate
 from definitions.period import Period
-from definitions.interest_rate import DayCount
-from definitions.interest_rate import Compounding, InterestRate
 from instruments.deposit import Deposit
 
-INTEREST_RATE = InterestRate(rate=Decimal("0.03"), compounding=Compounding.YEARLY, day_count=DayCount.ACTUAL_360)
+INTEREST_RATE = InterestRate(
+    rate=Decimal("0.03"), compounding=CompoundingFrequency.YEARLY, day_count=DayCountConvention.ACTUAL_360
+)
 
 
 def test_create_deposit():

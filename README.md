@@ -8,6 +8,11 @@ dates: dt.date
 amounts: Money
 holidays: HolidayBase
 
+## Definitions
+
+### 1.1 Dates
+
+We choose to implement dates using a new `Date` class.
 
 ## Handling numbers
 
