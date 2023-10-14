@@ -7,7 +7,7 @@ from money import Money
 
 from definitions.adjustment import BusinessDayConvention
 from definitions.date import Date
-from definitions.interest_rate import InterestRate, DayCount
+from definitions.interest_rate import Decimal, DayCount
 from definitions.frequency import Frequency
 from definitions.period import Period
 
@@ -20,7 +20,7 @@ class Frequency(str, Enum):
 
 class FixedLeg:
 
-    def __init__(self, notional: Money, value_date: Date, tenor: Period, coupon: InterestRate, holidays: HolidayBase):
+    def __init__(self, notional: Money, value_date: Date, tenor: Period, coupon: Decimal, holidays: HolidayBase):
         pass
 
 
@@ -28,7 +28,7 @@ fixed_leg = FixedLeg(
     notional=Money(10_000_000, "USD"),
     value_date=Date(2021, 7, 2),
     tenor=Period.parse("5Y"),
-    coupon=InterestRate(Decimal("0.96495"), Frequency("SemiAnnual"), DayCount("30E/360")),
+    coupon=Decimal(Decimal("0.96495"), Frequency("SemiAnnual"), DayCount("30E/360")),
     holidays=financial_holidays("US")
 )
 
@@ -59,7 +59,7 @@ days = period.days
 
 fraction = compute_year_fraction(start, end, DayCount("30E/360"))
 
-interest_rate = InterestRate(Decimal("0.0014575"), Frequency("Yearly"), DayCount("30E/360"))
+interest_rate = Decimal(Decimal("0.0014575"), Frequency("Yearly"), DayCount("30E/360"))
 
 zero_rate = (1 + interest_rate.rate * fraction)
 

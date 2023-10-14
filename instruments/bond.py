@@ -3,7 +3,7 @@ from decimal import Decimal
 from enum import Enum
 
 from definitions.date import Date
-from definitions.interest_rate import DayCount, InterestRate
+from definitions.interest_rate import DayCount, Decimal
 from definitions.frequency import Frequency
 from definitions.period import Days, Period, Unit
 
@@ -19,7 +19,7 @@ class CouponPayment(str, Enum):
 
 @dataclass
 class Coupon:
-    rate: InterestRate
+    rate: Decimal
     date: Date
 
 
@@ -29,12 +29,12 @@ class ZeroCouponBond:
         self.maturity = maturity
         self.par = par
 
-    def compute_ytm(self, date: Date, price: Decimal) -> InterestRate:
+    def compute_ytm(self, date: Date, price: Decimal) -> Decimal:
         calendar_days = (self.maturity - date).days
         day_count = DayCount.ACTUAL_360
         compounding = Frequency("NoCompounding")
         rate = (self.par / price - 1) * 360 / calendar_days
-        return InterestRate(rate=rate, day_count=day_count, compounding=compounding)
+        return Decimal(rate=rate, day_count=day_count, compounding=compounding)
 
 
 class Frequency(str, Enum):
@@ -61,16 +61,16 @@ class Bond:
     def compute_accruals(self, date: Date, price: Decimal) -> Decimal:
         pass
 
-    def compute_ytm(self, date: Date, price: Decimal) -> InterestRate:
+    def compute_ytm(self, date: Date, price: Decimal) -> Decimal:
         pass
 
 
 # https://www.jdawiseman.com/papers/finmkts/gilt_statics.html
 
-coupon = InterestRate(rate=Decimal("0.00125"), compounding=Frequency.YEARLY, day_count=DayCount.ACTUAL_ACTUAL_ISDA)
+coupon = Decimal(rate=Decimal("0.00125"), compounding=Frequency.YEARLY, day_count=DayCount.ACTUAL_ACTUAL_ISDA)
 
 
-def gilt(issue: Date, maturity: Date, coupon: InterestRate) -> Bond:
+def gilt(issue: Date, maturity: Date, coupon: Decimal) -> Bond:
     """
     Factory function to create a Bond object based on Gilt characteristics.
     A Gilt is defined by:
@@ -84,7 +84,7 @@ def gilt(issue: Date, maturity: Date, coupon: InterestRate) -> Bond:
 
 
 class Gilt(Bond):
-    def __init__(self, issue: Date, maturity: Date, coupon: InterestRate):
+    def __init__(self, issue: Date, maturity: Date, coupon: Decimal):
         coupon_dates = []
         super().__init__(issue, maturity, coupon, coupon_dates)
 

@@ -23,6 +23,7 @@ class DiscountCurve:
     def __init__(self, discount_factors: list[DiscountFactor]):
         """
         Construct a discount curve from a list of discount factors.
+
         :param discount_factors: list[DiscountFactor]
         """
         # Chek that there are discount factors
@@ -49,6 +50,7 @@ class DiscountCurve:
         return self.discount_factors[0].start
 
     def get(self, date: Date) -> DiscountFactor:
+        # TODO CHECK LOGLINEAR INTERPOLATION
         # If the requested date is one of the inputs,
         # return the discount factor
         end_dates = [discount_factor.end for discount_factor in self.discount_factors]
@@ -69,15 +71,12 @@ class DiscountCurve:
         while self.discount_factors[i].end <= date:
             i += 1
 
-        prev_df = self.discount_factors[i - 1]
-        next_df = self.discount_factors[i]
+        df_1 = self.discount_factors[i - 1]
+        df_2 = self.discount_factors[i]
 
-        prev_rate = prev_df.to_rate()
-        next_rate = next_df.to_rate()
-
-        dt = next_df.days - prev_df.days
-        rate = ((next_df.days - days) * prev_rate.rate + (days - prev_df.days) * next_rate.rate) / dt
-        df = Decimal.exp(-rate * days / Decimal(360))
+        weight_1 = Decimal((df_2.end - date).days) / Decimal((df_2.days - df_1.days))
+        weight_2 = Decimal((date - df_1.end).days) / Decimal((df_2.days - df_1.days))
+        df = weight_1 * Decimal.ln(df_1.factor) + weight_2 * Decimal.ln(df_2.factor)
 
         return DiscountFactor(start=self.start, end=date, factor=df)
 

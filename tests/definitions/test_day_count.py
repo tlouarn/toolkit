@@ -39,3 +39,23 @@ def test_compute_year_fraction_act_act():
     fraction = compute_year_fraction(start_date, end_date, day_count)
 
     assert fraction == Decimal(92) / Decimal(365) + Decimal(91) / Decimal(366)
+
+
+def test_compute_year_fraction_actual_actual_isda():
+    """
+    Examples taken from:
+    http://www.deltaquants.com/day-count-conventions
+
+    #TODO implement all examples
+    """
+    start = Date(2007, 12, 28)
+    end = Date(2008, 2, 29)
+    fraction = compute_year_fraction(start=start, end=end, day_count=DayCountConvention.ACTUAL_ACTUAL_ISDA)
+    assert round(fraction, 15) == Decimal(62 / 365)
+
+    start = Date(2007, 10, 31)
+    end = Date(2008, 11, 30)
+    fraction = compute_year_fraction(start=start, end=end, day_count=DayCountConvention.ACTUAL_ACTUAL_ISDA)
+    assert round(fraction, 15) == Decimal("1.08243131970956")
+
+    a = 1

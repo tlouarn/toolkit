@@ -24,12 +24,12 @@ class DayCountConvention(str, Enum):
     THIRTY_I_360 = "30I/360"
 
 
-def compute_year_fraction(start_date: Date, end_date: Date, day_count: DayCountConvention) -> Decimal:
+def compute_year_fraction(start: Date, end: Date, day_count: DayCountConvention) -> Decimal:
     """
     Compute the fraction of year between two dates.
     Used to compute the accrued interests on a wide range of financial instruments.
     """
-    calendar_days = (end_date - start_date).days
+    calendar_days = (end - start).days
 
     match day_count:
         case DayCountConvention.THIRTY_E_360:
@@ -38,12 +38,12 @@ def compute_year_fraction(start_date: Date, end_date: Date, day_count: DayCountC
             2006 ISDA definitions 4.16g
             """
             # Cap both start and end date to 30
-            start_date.day = min(start_date.day, 30)
-            end_date.day = min(end_date.day, 30)
+            start.day = min(start.day, 30)
+            end.day = min(end.day, 30)
 
-            days = 360 * (end_date.year - start_date.year)
-            days += 30 * (end_date.month - start_date.month)
-            days += end_date.day - start_date.day
+            days = 360 * (end.year - start.year)
+            days += 30 * (end.month - start.month)
+            days += end.day - start.day
             return Decimal(days) / Decimal(360)
 
         case DayCountConvention.THIRTY_I_360:
@@ -56,13 +56,13 @@ def compute_year_fraction(start_date: Date, end_date: Date, day_count: DayCountC
               included in the Calculation Period or Compounding Period, unless such number would be
               31 and D1 is greater than 29, in which case D2 will be 30
             """
-            start_date.day = min(start_date.day, 30)
-            if start_date.day > 29:
-                end_date.day = min(end_date.day, 30)
+            start.day = min(start.day, 30)
+            if start.day > 29:
+                end.day = min(end.day, 30)
 
-            days = 360 * (end_date.year - start_date.year)
-            days += 30 * (end_date.month - start_date.month)
-            days += end_date.day - start_date.day
+            days = 360 * (end.year - start.year)
+            days += 30 * (end.month - start.month)
+            days += end.day - start.day
             return Decimal(days) / Decimal(360)
 
         case DayCountConvention.ACTUAL_360:
@@ -76,6 +76,6 @@ def compute_year_fraction(start_date: Date, end_date: Date, day_count: DayCountC
             This implementation follows the ACT/ACT ISDA definition.
             https://www.isda.org/a/pIJEE/The-Actual-Actual-Day-Count-Fraction-1999.pdf
             """
-            leap = sum(1 for x in DateRange(start_date, end_date) if x.is_leap)
+            leap = sum(1 for x in DateRange(start, end) if x.is_leap)
             non_leap = calendar_days - leap
             return Decimal(leap) / Decimal(366) + Decimal(non_leap) / Decimal(365)

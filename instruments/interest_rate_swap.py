@@ -5,11 +5,12 @@ from dataclasses import dataclass
 from holidays import HolidayBase
 from money import Money
 
-from definitions.business_day import BusinessDayConvention
+from definitions.business_day import BusinessDayConvention, adjust_date
 from definitions.date import Date
 from definitions.day_count import DayCountConvention, compute_year_fraction
+from definitions.discount_curve import DiscountCurve
 from definitions.frequency import Frequency
-from definitions.interest_rate import InterestRate
+from definitions.interest_rate import Decimal
 from definitions.period import Period
 from definitions.schedule import generate_schedule
 from definitions.stub import StubConvention
@@ -50,9 +51,11 @@ class LiborUsd3mSwap:
 class Coupon:
     start: Date
     end: Date
+    payment: Date
     amount: Money
 
 
+# TODO replace convention and holidays with calendar
 @dataclass
 class FixedLeg:
     coupons: list[Coupon]
@@ -63,28 +66,20 @@ class FixedLeg:
         start: Date,
         maturity: Date,
         notional: Money,
-        coupon_rate: InterestRate,
+        coupon_rate: Decimal,
         day_count: DayCountConvention,
         payment_frequency: Frequency,
+        payment_offset: Period,
         convention: BusinessDayConvention,
         holidays: HolidayBase,
     ) -> FixedLeg:
         """
         Generate a FixedLeg, i.e. a sequence of coupons.
         """
+        # Get the period equivalent to the payment frequency
+        step = payment_frequency.to_period()
 
-        # Convert payment frequency to period
-        match payment_frequency:
-            case Frequency.ANNUAL:
-                step = Period.parse("12M")
-            case Frequency.SEMI_ANNUAL:
-                step = Period.parse("6M")
-            case Frequency.QUARTERLY:
-                step = Period.parse("3M")
-            case _:
-                raise ValueError(f"Invalid Frequency: {payment_frequency}")
-
-        # Generate a payment schedule
+        # Generate schedule
         schedule = generate_schedule(
             start=start,
             maturity=maturity,
@@ -94,23 +89,81 @@ class FixedLeg:
             stub=StubConvention.FRONT,
         )
 
-        # Compute coupons
+        # Generate coupons
         coupons = []
         start_dates = [start] + [date for date in schedule[:-1]]
         end_dates = [date for date in schedule]
         for dates in zip(start_dates, end_dates):
             fraction = compute_year_fraction(dates[0], dates[1], day_count)
-            amount = notional * coupon_rate.rate * fraction
-            coupon = Coupon(start=dates[0], end=dates[1], amount=amount)
+            amount = notional * coupon_rate * fraction
+            payment = adjust_date(dates[1] + payment_offset, holidays, convention)
+            coupon = Coupon(start=dates[0], end=dates[1], amount=amount, payment=payment)
             coupons.append(coupon)
 
         # Return coupons
         return FixedLeg(coupons=coupons)
 
+    def compute_npv(self, discount_curve: DiscountCurve) -> Decimal:
+        npv = Decimal(0)
+
+        for coupon in self.coupons:
+            discount_factor = discount_curve.get(coupon.payment)
+            npv += coupon.amount * discount_factor
+
+        return npv
+
+
+@dataclass
+class FloatingCoupon:
+    start: Date
+    end: Date
+    payment: Date
+    spread: Decimal
+
 
 @dataclass
 class FloatingLeg:
-    coupons: list[Coupon]
+    coupons: list[FloatingCoupon]
+    day_count: DayCountConvention
+    notional: Money
+
+    @classmethod
+    def generate(
+        cls,
+        start: Date,
+        maturity: Date,
+        notional: Money,
+        spread: Decimal,
+        day_count: DayCountConvention,
+        payment_frequency: Frequency,
+        payment_offset: Period,
+        convention: BusinessDayConvention,
+        holidays: HolidayBase,
+    ) -> FloatingLeg:
+        # Get the period equivalent to the payment frequency
+        step = payment_frequency.to_period()
+
+        # Generate schedule
+        schedule = generate_schedule(
+            start=start,
+            maturity=maturity,
+            step=step,
+            holidays=holidays,
+            convention=convention,
+            stub=StubConvention.FRONT,
+        )
+
+        # Generate coupons
+        coupons = []
+        start_dates = [start] + [date for date in schedule[:-1]]
+        end_dates = [date for date in schedule]
+        for dates in zip(start_dates, end_dates):
+            payment = adjust_date(dates[1] + payment_offset, holidays, convention)
+            coupon = FloatingCoupon(start=dates[0], end=dates[1], payment=payment, spread=spread)
+            coupons.append(coupon)
+
+        # Return coupons
+        return FloatingLeg(coupons=coupons, notional=notional, day_count=day_count)
 
 
 # @dataclass
@@ -144,3 +197,10 @@ class FloatingLeg:
 #
 #     def solve(self):
 #         pass
+
+
+class InterestRateSwap:
+    def __init__(self, way: str, fixed_leg: FixedLeg, floating_leg: FloatingLeg) -> None:
+        self.way = way
+        self.fixed_leg = fixed_leg
+        self.floating_leg = floating_leg

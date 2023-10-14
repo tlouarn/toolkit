@@ -50,7 +50,7 @@ def test_parse_invalid_date_strings():
         date = Date.parse("YYYY 09 18")
 
 
-def test_comparison_eq():
+def test_compare_eq():
     date_1 = Date(2023, 9, 18)
     date_2 = Date(2023, 9, 18)
 
@@ -58,7 +58,7 @@ def test_comparison_eq():
     assert date_1 == date_2
 
 
-def test_comparison_lt():
+def test_compare_lt():
     date_1 = Date(2022, 9, 18)
     date_2 = Date(2023, 9, 18)
     date_3 = Date(2023, 9, 19)
@@ -90,19 +90,25 @@ def test_subtract_date():
     assert date_2 - date_1 == Days(30)
 
 
-def test_constructor_imm_date():
+def test_imm_date_constructor():
     date = Date.imm(2023, 12)
 
     assert date == Date(2023, 12, 20)
 
 
-def test_constructor_third_friday():
+def test_third_friday_constructor():
     date = Date.third_friday(2023, 12)
 
     assert date == Date(2023, 12, 15)
 
 
-def test_from_excel():
+def test_today_constructor():
+    date = Date.today()
+
+    assert date.to_date() == dt.date.today()
+
+
+def test_excel():
     """
     Test conversions between Excel serial numbers and Date objects.
     """
@@ -115,12 +121,6 @@ def test_str():
     date = Date(2023, 9, 18)
 
     assert str(date) == "2023-09-18"
-
-
-def test_today():
-    date = Date.today()
-
-    assert date.to_date() == dt.date.today()
 
 
 def test_weekday():
@@ -145,7 +145,7 @@ def test_is_weekend():
 
 def test_is_leap_year():
     """
-    Test data is coming from QuantLib.
+    All the test data is coming from QuantLib.
     https://github.com/lballabio/QuantLib/blob/master/ql/time/date.cpp
     """
     # Check that the function is correct for all years
@@ -162,5 +162,11 @@ def test_is_eom():
     assert not Date(2023, 1, 30).is_eom
 
     # Test that there are 12 ends of months per year
+    # in both leap and non-leap years
     assert sum(1 if date.is_eom else 0 for date in DateRange(Date(2023, 1, 1), Date(2024, 1, 1))) == 12
     assert sum(1 if date.is_eom else 0 for date in DateRange(Date(2024, 1, 1), Date(2025, 1, 1))) == 12
+
+
+def test_get_eom():
+    assert Date(2024, 1, 1).get_eom() == Date(2024, 1, 31)
+    assert Date(2023, 12, 31).get_eom() == Date(2023, 12, 31)

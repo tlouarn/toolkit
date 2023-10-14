@@ -39,18 +39,15 @@ class Date:
     Allowed dates go from January 1st 1901 to December 31st 2199.
     """
 
+    # TODO move constants out of class for more readabiliy when
+    # seeing an instance of the object in Pycharm debugger
+
     MIN_YEAR = 1901
     MAX_YEAR = 2199
     MIN_EXCEL = 367
     MAX_EXCEL = 109574
 
     def __init__(self, year: int, month: int, day: int):
-        """
-        Main constructor to instantiate a Date object.
-        :param year:
-        :param month:
-        :param day:
-        """
         # Base error message
         error = f"Date({year}, {month}, {day}) is invalid: "
 
@@ -122,7 +119,7 @@ class Date:
         """
         Instantiate a Date from an Excel serial date number.
         """
-        if not cls.MIN_EXCEL < serial < cls.MAX_EXCEL:
+        if not cls.MIN_EXCEL <= serial <= cls.MAX_EXCEL:
             raise ValueError(f"Invalid Excel serial date number: {serial}")
 
         min_date = Date(1901, 1, 1)

@@ -9,7 +9,9 @@ from definitions.stub import StubConvention
 # todo improve
 Schedule = list[Date]
 
-
+# Todo rename MATURITY as END
+# Todo add EOM specificity (if starts on EOM, all resets are on EOM)
+# Todo add SHORT STUB and LONG STUB (SHORT_FRONT, LONG_FRONT, SHORT_BACK, LONG_BACK)
 def generate_schedule(
     start: Date,
     maturity: Date,
@@ -33,6 +35,7 @@ def generate_schedule(
     schedule = []
 
     # Adjust maturity
+    # TODO check if really necessary, maybe raise exception is maturity is not valid and ask for a valid date instead
     maturity = adjust_date(maturity, holidays, convention)
     schedule.append(maturity)
 
