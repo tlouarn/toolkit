@@ -6,12 +6,12 @@ from decimal import Decimal
 
 from definitions.date import Date
 from definitions.day_count import DayCountConvention, compute_year_fraction
-from definitions.interest_rate import Decimal
+from definitions.interest_rate import InterestRate
 
 valuation = Date(2021, 7, 2)
 maturity = Date(2021, 10, 4)
 
-market_rate = Decimal(Decimal("0.0014575"))
+market_rate = InterestRate(InterestRate("0.0014575"))
 
 fraction = compute_year_fraction(valuation, maturity, DayCountConvention.THIRTY_E_360)
 
@@ -51,30 +51,30 @@ dates = [
 ]
 
 rates = [
-    Decimal("0.00147746193495074"),
-    Decimal("0.00144337757980778"),
-    Decimal("0.00166389741542625"),
-    Decimal("0.00175294804717070"),
-    Decimal("0.00196071374597585"),
-    Decimal("0.00224582504806747"),
-    Decimal("0.00264462838911974"),
-    Decimal("0.00328408008984121"),
-    Decimal("0.00571530169527018"),
-    Decimal("0.00795496282359075"),
-    Decimal("0.00970003866673104"),
-    Decimal("0.01113416387898720"),
-    Decimal("0.01229010329346910"),
-    Decimal("0.01320660291639990"),
-    Decimal("0.01396222829363160"),
-    Decimal("0.01461391064905110"),
-    Decimal("0.01518876914165160"),
-    Decimal("0.01567359620429550"),
-    Decimal("0.01673867348140660"),
-    Decimal("0.01771539830734830"),
-    Decimal("0.01798302077085120"),
-    Decimal("0.01801516858533200"),
-    Decimal("0.01707008589009480"),
-    Decimal("0.01580574448899780"),
+    InterestRate("0.00147746193495074"),
+    InterestRate("0.00144337757980778"),
+    InterestRate("0.00166389741542625"),
+    InterestRate("0.00175294804717070"),
+    InterestRate("0.00196071374597585"),
+    InterestRate("0.00224582504806747"),
+    InterestRate("0.00264462838911974"),
+    InterestRate("0.00328408008984121"),
+    InterestRate("0.00571530169527018"),
+    InterestRate("0.00795496282359075"),
+    InterestRate("0.00970003866673104"),
+    InterestRate("0.01113416387898720"),
+    InterestRate("0.01229010329346910"),
+    InterestRate("0.01320660291639990"),
+    InterestRate("0.01396222829363160"),
+    InterestRate("0.01461391064905110"),
+    InterestRate("0.01518876914165160"),
+    InterestRate("0.01567359620429550"),
+    InterestRate("0.01673867348140660"),
+    InterestRate("0.01771539830734830"),
+    InterestRate("0.01798302077085120"),
+    InterestRate("0.01801516858533200"),
+    InterestRate("0.01707008589009480"),
+    InterestRate("0.01580574448899780"),
 ]
 
 

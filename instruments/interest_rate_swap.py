@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
+from decimal import Decimal
 
 from holidays import HolidayBase
 from money import Money
@@ -8,9 +9,8 @@ from money import Money
 from definitions.business_day import BusinessDayConvention, adjust_date
 from definitions.date import Date
 from definitions.day_count import DayCountConvention, compute_year_fraction
-from definitions.discount_curve import DiscountCurve
+from definitions.discount_curve import FlatForward
 from definitions.frequency import Frequency
-from definitions.interest_rate import Decimal
 from definitions.period import Period
 from definitions.schedule import generate_schedule
 from definitions.stub import StubConvention
@@ -55,7 +55,9 @@ class Coupon:
     amount: Money
 
 
-# TODO replace convention and holidays with calendar
+# TODO replace convention and holidays with BusinessCalendar object
+
+
 @dataclass
 class FixedLeg:
     coupons: list[Coupon]
@@ -103,11 +105,13 @@ class FixedLeg:
         # Return coupons
         return FixedLeg(coupons=coupons)
 
-    def compute_npv(self, discount_curve: DiscountCurve) -> Decimal:
+    # TODO compute with something else than a FlatForward curve
+    # TODO update this method, this is just a test
+    def compute_npv(self, discount_curve: FlatForward) -> Decimal:
         npv = Decimal(0)
 
         for coupon in self.coupons:
-            discount_factor = discount_curve.get(coupon.payment)
+            discount_factor = discount_curve.zero_discount_factor(coupon.payment)
             npv += coupon.amount * discount_factor
 
         return npv
@@ -165,38 +169,24 @@ class FloatingLeg:
         # Return coupons
         return FloatingLeg(coupons=coupons, notional=notional, day_count=day_count)
 
+    def compute_npv(self, ibor_curve: FlatForward, discount_curve: FlatForward):
+        npv = Decimal(0)
 
-# @dataclass
-# class FixedLeg:
-#     effective_date: Date
-#     notional: Money
-#     coupon: InterestRate
-#     schedule: Schedule
-#     day_count: DayCountConvention
-#
-#     @property
-#     def coupons(self) -> list[Coupon]:
-#         coupons = []
-#         start_dates = [self.effective_date] + [date for date in self.schedule[:-1]]
-#         end_dates = [date for date in self.schedule]
-#
-#         for dates in zip(start_dates, end_dates):
-#             fraction = year_fraction(dates[0], dates[1], self.day_count)
-#             coupon = Coupon(start=dates[0], end=dates[1], amount=self.notional * self.coupon.rate * fraction)
-#             coupons.append(coupon)
-#
-#         return coupons
+        for coupon in self.coupons:
+            forward_discount_factor = ibor_curve.forward_discount_factor(coupon.start, coupon.end)
 
+            # STEPS:
+            # Compute the forward interest rate
+            # Add the floating leg spread
+            # Compute the amount
+            # Discount the amount
 
-# class FixedFloatingInterestRateSwap:
-#     def __init__(self, effective: Date, maturity: Date, fixed_leg: FixedLeg, floating_leg: FloatingLeg) -> None:
-#         self.effective = effective
-#         self.maturity = maturity
-#         self.fixed_leg = fixed_leg
-#         self.floating_leg = floating_leg
-#
-#     def solve(self):
-#         pass
+            amount = self.notional.amount * (1 / forward_discount_factor-1)
+
+            discount_factor = discount_curve.zero_discount_factor(coupon.payment)
+            npv += amount * discount_factor
+
+        return npv
 
 
 class InterestRateSwap:

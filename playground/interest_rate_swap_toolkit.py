@@ -10,9 +10,9 @@ from definitions.business_calendar import BusinessCalendar
 from definitions.business_day import BusinessDayConvention
 from definitions.date import Date
 from definitions.day_count import DayCountConvention
-from definitions.discount_curve import DiscountCurve
-from definitions.discount_factor import DiscountFactor
+from definitions.discount_curve import FlatForward
 from definitions.frequency import Frequency
+from definitions.interest_rate import InterestRate
 from definitions.period import Days, Years
 from instruments.interest_rate_swap import FixedLeg, FloatingLeg, InterestRateSwap
 
@@ -54,16 +54,16 @@ floating_leg = FloatingLeg.generate(
 swap = InterestRateSwap(way="PAYER", fixed_leg=fixed_leg, floating_leg=floating_leg)
 
 
-# Flat discount curve
-discount_factors = [
-    DiscountFactor(calculation_date, calculation_date + Days(1), Decimal(1)),
-    DiscountFactor(calculation_date, maturity_date, Decimal(1)),
-]
-discount_curve = DiscountCurve(discount_factors)
+# Flatforward curve
+forward_rate = InterestRate(Decimal("0.01"), DayCountConvention("ACT/365"), Frequency("Continuous"))
+discount_curve = FlatForward(start=calculation_date, rate=forward_rate)
+fixed_npv = fixed_leg.compute_npv(discount_curve)
 
-npv = fixed_leg.compute_npv(discount_curve)
+ibor_rate = InterestRate(Decimal("0.02"), DayCountConvention("ACT/365"), Frequency("Continuous"))
+ibor_curve = FlatForward(start=calculation_date, rate=ibor_rate)
+floating_npv = floating_leg.compute_npv(ibor_curve, discount_curve)
 
-#pricer = InterestRateSwapPricer(swap=swap, ibor_curve=ibor_curve, discount_curve=discount_curve)
+# pricer = InterestRateSwapPricer(swap=swap, ibor_curve=ibor_curve, discount_curve=discount_curve)
 
 
 a = 1

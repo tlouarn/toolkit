@@ -4,6 +4,8 @@ from holidays import financial_holidays
 from definitions.business_day import BusinessDayConvention, adjust_date
 from definitions.date import Date
 
+# TODO implement
+# https://github.com/lballabio/QuantLib/blob/master/test-suite/businessdayconventions.cpp
 
 def test_instantiate_convention():
     """

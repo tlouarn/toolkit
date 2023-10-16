@@ -3,14 +3,14 @@ from decimal import Decimal
 
 from definitions.date import Date
 from definitions.discount_factor import DiscountFactor
-from definitions.interest_rate import Decimal
+from definitions.interest_rate import InterestRate
 from definitions.frequency import Frequency
 
 
 def test_constructor():
     start = Date(2023, 9, 18)
     end = Date(2023, 10, 18)
-    factor = Decimal("0.99")
+    factor = InterestRate("0.99")
 
     discount_factor = DiscountFactor(start=start, end=end, factor=factor)
 
@@ -20,26 +20,26 @@ def test_constructor():
 
 
 def test_construct_from_interest_rate():
-    rate = Decimal("0.03")
+    rate = InterestRate("0.03")
     compounding = Frequency.ANNUAL
-    interest_rate = Decimal(rate=rate, compounding=compounding)
+    interest_rate = InterestRate(rate=rate, compounding=compounding)
 
     start = Date(2023, 9, 18)
     end = Date(2023, 10, 18)
     discount_factor = DiscountFactor.from_interest_rate(start=start, end=end, interest_rate=interest_rate)
 
-    assert discount_factor.factor == Decimal(1) / (Decimal(1) + Decimal("0.0025"))
+    assert discount_factor.factor == InterestRate(1) / (InterestRate(1) + InterestRate("0.0025"))
 
 
 def test_to_rate():
     start = Date(2023, 1, 1)
     end = Date(2023, 2, 1)
-    factor = Decimal("0.999")
+    factor = InterestRate("0.999")
     discount_factor = DiscountFactor(start=start, end=end, factor=factor)
 
-    rate = Decimal("0.01161871355129264709843463263")
+    rate = InterestRate("0.01161871355129264709843463263")
 
-    assert discount_factor.to_rate() == Decimal(rate, Frequency.CONTINUOUS)
+    assert discount_factor.to_rate() == InterestRate(rate, Frequency.CONTINUOUS)
 
     import QuantLib as ql
 

@@ -5,9 +5,8 @@ from holidays import financial_holidays
 from definitions.business_day import BusinessDayConvention, adjust_date
 from definitions.date import Date
 from definitions.day_count import DayCountConvention
-from definitions.discount_curve import DiscountCurve
+from definitions.discount_curve import DiscountCurve, Method
 from definitions.discount_factor import DiscountFactor
-from definitions.frequency import Frequency
 from definitions.period import Days, Months, Weeks, Years
 
 
@@ -175,7 +174,8 @@ def test_quantnet_using_toolkit():
     assert round(zero_rate, 8) == Decimal("0.01107998")
 
     # Test 2: spot discount factor
-    assert discount_curve.get(date_1).factor == Decimal("0.9861596")
+    method = Method.LOG_LINEAR_DISCOUNT_FACTOR
+    assert discount_curve.get(date_1, method=method).factor == Decimal("0.9861596")
 
     # # Test 3: forward rate
     # date_2 = date_1 + Months(3)

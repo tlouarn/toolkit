@@ -3,6 +3,7 @@ from __future__ import annotations
 import datetime as dt
 from enum import Enum
 from functools import total_ordering
+from typing import Self
 
 from dateutil.relativedelta import relativedelta
 
@@ -28,32 +29,31 @@ class Weekday(str, Enum):
     SUN = "SUN"
 
 
+# Constants are defined here
+# Used by the `Date` class but not visible in instantiated `Date` objects
 ENDS_OF_MONTHS = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31]
 ENDS_OF_MONTHS_LEAP_YEAR = [31, 29, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31]
+MIN_YEAR = 1901
+MAX_YEAR = 2199
+MIN_EXCEL = 367
+MAX_EXCEL = 109574
 
 
 @total_ordering
 class Date:
     """
     Custom date implementation.
-    Allowed dates go from January 1st 1901 to December 31st 2199.
+    Allowed dates go from January 1st 1901 to December 31st 2199 as per QuantLib
+    implementation.
     """
-
-    # TODO move constants out of class for more readabiliy when
-    # seeing an instance of the object in Pycharm debugger
-
-    MIN_YEAR = 1901
-    MAX_YEAR = 2199
-    MIN_EXCEL = 367
-    MAX_EXCEL = 109574
 
     def __init__(self, year: int, month: int, day: int):
         # Base error message
         error = f"Date({year}, {month}, {day}) is invalid: "
 
         # Ensure the year is within defined boundaries
-        if not self.MIN_YEAR <= year <= self.MAX_YEAR:
-            error += f"year should be in [{self.MIN_YEAR}, {self.MAX_YEAR}]"
+        if not MIN_YEAR <= year <= MAX_YEAR:
+            error += f"year should be in [{MIN_YEAR}, {MAX_YEAR}]"
             raise ValueError(error)
         self.year = year
 
@@ -77,7 +77,7 @@ class Date:
         return f"{self.year:02d}-{self.month:02d}-{self.day:02d}"
 
     @classmethod
-    def imm(cls, year: int, month: int) -> Date:
+    def imm(cls, year: int, month: int) -> Self:
         """
         IMM = International Monetary Market
         Instantiate a Date corresponding to the IMM date for a given month and year.
@@ -89,7 +89,7 @@ class Date:
         return date
 
     @classmethod
-    def third_friday(cls, year: int, month: int) -> Date:
+    def third_friday(cls, year: int, month: int) -> Self:
         """
         Instantiate a Date corresponding to the third Friday for a given month and year.
         The third Friday of the month is when most European index futures expire.
@@ -100,7 +100,7 @@ class Date:
         return date
 
     @classmethod
-    def today(cls) -> Date:
+    def today(cls) -> Self:
         """
         Instantiate a Date from today's date.
         """
@@ -108,25 +108,25 @@ class Date:
         return Date(date.year, date.month, date.day)
 
     @classmethod
-    def from_date(cls, date: dt.date) -> Date:
+    def from_date(cls, date: dt.date) -> Self:
         """
         Instantiate a Date from a datetime.date.
         """
         return Date(date.year, date.month, date.day)
 
     @classmethod
-    def from_excel(cls, serial: int) -> Date:
+    def from_excel(cls, serial: int) -> Self:
         """
         Instantiate a Date from an Excel serial date number.
         """
-        if not cls.MIN_EXCEL <= serial <= cls.MAX_EXCEL:
+        if not MIN_EXCEL <= serial <= MAX_EXCEL:
             raise ValueError(f"Invalid Excel serial date number: {serial}")
 
         min_date = Date(1901, 1, 1)
         return min_date + Days(serial - 367)
 
     @classmethod
-    def parse(cls, string: str) -> Date:
+    def parse(cls, string: str) -> Self:
         """
         Instantiate a Date from a string.
         Expected string format is "YYYY-MM-DD".
@@ -231,7 +231,12 @@ class Date:
     def __eq__(self, other: Date) -> bool:
         return self.year == other.year and self.month == other.month and self.day == other.day
 
-    def __lt__(self, other) -> bool:
+    def __lt__(self, other: Date) -> bool:
+        """
+        Compare two Date objects
+        :param other:
+        :return:
+        """
         if self.year != other.year:
             return self.year < other.year
 

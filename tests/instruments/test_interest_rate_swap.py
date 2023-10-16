@@ -6,7 +6,7 @@ from money import Money
 from definitions.business_day_convention import BusinessDayConvention
 from definitions.date import Date
 from definitions.day_count import DayCountConvention
-from definitions.interest_rate import Decimal
+from definitions.interest_rate import InterestRate
 from definitions.payment_frequency import PaymentFrequency
 from definitions.period import Period
 from instruments.interest_rate_swap import FixedLeg
@@ -19,7 +19,7 @@ def test_instantiate_fixed_floating_irs():
     start = Date(2011, 11, 14)
     maturity = start + Period.parse("5Y")
     notional = Money(1_000_000, "USD")
-    fixed_rate = Decimal(Decimal("0.0124"))
+    fixed_rate = InterestRate(InterestRate("0.0124"))
 
     # Generate fixed leg
     fixed_leg = FixedLeg.generate(

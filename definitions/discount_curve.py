@@ -5,6 +5,8 @@ from enum import Enum
 
 from definitions.date import Date
 from definitions.discount_factor import DiscountFactor
+from definitions.interest_rate import InterestRate
+from utils.interpolate import linear_interpolation
 
 """
 Ways to instantiate a DiscountFactor:
@@ -12,11 +14,30 @@ Ways to instantiate a DiscountFactor:
 From two cash-flows:
 df = DiscountFactor.from_cashflows(cash_flow, cash_flow2)
 df = DiscountFactor.from_interest_rate(interest_rate, start, end)
+
+
+TODO maybe use a Protocol
+DiscountCurve(Protocol):
+
+
+DiscountCurve = FlatForward | LogLinearDiscountFactor | LinearDiscountFactor | 
+
+
 """
 
 
-class Interpolation(str, Enum):
-    FLAT_FORWARD = "FlatForward"
+class Method(str, Enum):
+    """
+    List of available interpolation methods in order to compute
+    discount factors from the discount curve.
+    """
+
+    LINEAR_ZERO_RATE = "LinearZeroRate"
+    # LOG_LINEAR_ZERO_RATE = "LogLinearZeroRate"
+    LINEAR_DISCOUNT_FACTOR = "LinearDiscountFactor"
+    LOG_LINEAR_DISCOUNT_FACTOR = "LogLinearDiscountFactor"
+    # LINEAR_SWAP_RATE = "LinearSwapRate"
+    # LINEAR_FORWARD_RATE = "LinearForwardRate"
 
 
 class DiscountCurve:
@@ -49,7 +70,7 @@ class DiscountCurve:
         """
         return self.discount_factors[0].start
 
-    def get(self, date: Date) -> DiscountFactor:
+    def get(self, date: Date, method: Method) -> DiscountFactor:
         # TODO CHECK LOGLINEAR INTERPOLATION
         # If the requested date is one of the inputs,
         # return the discount factor
@@ -71,14 +92,47 @@ class DiscountCurve:
         while self.discount_factors[i].end <= date:
             i += 1
 
-        df_1 = self.discount_factors[i - 1]
-        df_2 = self.discount_factors[i]
+        df1 = self.discount_factors[i - 1]
+        df2 = self.discount_factors[i]
 
-        weight_1 = Decimal((df_2.end - date).days) / Decimal((df_2.days - df_1.days))
-        weight_2 = Decimal((date - df_1.end).days) / Decimal((df_2.days - df_1.days))
-        df = weight_1 * Decimal.ln(df_1.factor) + weight_2 * Decimal.ln(df_2.factor)
+        x1 = Decimal(df1.days)
+        x2 = Decimal(df2.days)
+        x = Decimal(days)
 
-        return DiscountFactor(start=self.start, end=date, factor=df)
+        match method:
+            case method.LINEAR_ZERO_RATE:
+                """
+                Linear interpolation of the zero rates.
+                Zero rates are the continuously compounded spot rates inferred from
+                the discount curve.
+                """
+                y1 = -Decimal.ln(df1.factor) / x1
+                y2 = -Decimal.ln(df2.factor) / x2
+                interp = linear_interpolation(x1, y1, x2, y2, x)
+                y = Decimal.exp(-interp * x)
+
+            case method.LINEAR_DISCOUNT_FACTOR:
+                """
+                Linear interpolation of the discount factors.
+                """
+                y1 = df1.factor
+                y2 = df2.factor
+                y = linear_interpolation(x1, y1, x2, y2, x)
+
+            case method.LOG_LINEAR_DISCOUNT_FACTOR:
+                """
+                Linear interpolation of the natural logarithm of the discount factors.
+                # TODO check also named "FLAT_FORWARD"
+                """
+                y1 = Decimal.ln(df1.factor)
+                y2 = Decimal.ln(df2.factor)
+                interp = linear_interpolation(x1, y1, x2, y2, x)
+                y = Decimal.exp(interp)
+
+            case _:
+                raise NotImplementedError
+
+        return DiscountFactor(start=self.start, end=date, factor=y)
 
     def forward(self, start: Date, end: Date) -> DiscountFactor:
         """
@@ -103,3 +157,21 @@ class DiscountCurve:
     #
     #     forward_df = self.forward(start, end)
     #     return forward_df.to_rate()
+
+
+class FlatForward:
+    def __init__(self, start: Date, rate: InterestRate) -> None:
+        self.start = start
+        self.rate = rate
+
+    def zero_discount_factor(self, date: Date) -> Decimal:
+        if date <= self.start:
+            raise ValueError
+
+        return self.rate.to_discount_factor(self.start, date)
+
+    def forward_discount_factor(self, start: Date, end: Date) -> Decimal:
+        if not self.start <= start < end:
+            raise ValueError
+
+        return self.rate.to_discount_factor(start, end)

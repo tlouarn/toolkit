@@ -1,10 +1,10 @@
 from definitions.discount_curve import DiscountCurve
-from definitions.interest_rate import Decimal
+from definitions.interest_rate import InterestRate
 from instruments.interest_rate_swap import FixedLeg, FloatingLeg, InterestRateSwap
 
 
-def value_fixed_leg(fixed_leg: FixedLeg, discount_curve: DiscountCurve) -> Decimal:
-    npv = Decimal(0)
+def value_fixed_leg(fixed_leg: FixedLeg, discount_curve: DiscountCurve) -> InterestRate:
+    npv = InterestRate(0)
 
     for coupon in fixed_leg.coupons:
         discount_factor = discount_curve.get(coupon.payment)
@@ -13,7 +13,7 @@ def value_fixed_leg(fixed_leg: FixedLeg, discount_curve: DiscountCurve) -> Decim
     return npv
 
 
-def value_floating_leg(floating_leg: FloatingLeg, ibor_curve: DiscountCurve, discount_curve: DiscountCurve) -> Decimal:
+def value_floating_leg(floating_leg: FloatingLeg, ibor_curve: DiscountCurve, discount_curve: DiscountCurve) -> InterestRate:
     # Imply the forward Ibor rates from ibor_curve
 
     for coupon in floating_leg.coupons:
@@ -21,6 +21,6 @@ def value_floating_leg(floating_leg: FloatingLeg, ibor_curve: DiscountCurve, dis
         days = coupon.end - coupon.start
         amount = floating_leg.notional * forward_rate * days
 
-def value_irs(swap: InterestRateSwap, ibor_curve: DiscountCurve, discount_curve: DiscountCurve) -> Decimal:
+def value_irs(swap: InterestRateSwap, ibor_curve: DiscountCurve, discount_curve: DiscountCurve) -> InterestRate:
     # Value the fixed leg
     fixed_

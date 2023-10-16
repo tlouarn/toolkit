@@ -73,6 +73,9 @@ day count convention:
 simple vs compounded. here, use the `Frequency` enum to specify the case.
 
 spot rate = zero rate
+what is a forward rate
+what is an instantanous forward rate
+=> explain the formulas
 
 Expressed in number, not percent or basis
 

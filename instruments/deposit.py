@@ -5,7 +5,7 @@ from money import Money
 
 from definitions.cash_flow import CashFlow
 from definitions.date import Date
-from definitions.interest_rate import DayCount, Decimal
+from definitions.interest_rate import DayCount, InterestRate
 
 
 class Frequency(str, Enum):
@@ -23,7 +23,7 @@ class Deposit:
 
     start: Date
     end: Date
-    interest_rate: Decimal
+    interest_rate: InterestRate
     principal: Money
 
     @property

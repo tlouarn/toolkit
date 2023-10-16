@@ -4,8 +4,9 @@ from dataclasses import dataclass
 from decimal import Decimal
 
 from definitions.date import Date
-#from definitions.interest_rate import InterestRate
-from definitions.frequency import Frequency
+
+
+# from definitions.interest_rate import InterestRate
 
 
 @dataclass(frozen=True, eq=True)
@@ -14,8 +15,6 @@ class DiscountFactor:
     end: Date
     factor: Decimal
 
-
-
     @property
     def days(self) -> int:
         """
@@ -23,4 +22,3 @@ class DiscountFactor:
         """
         calendar_days = (self.end - self.start).days
         return calendar_days
-

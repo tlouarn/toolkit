@@ -6,12 +6,46 @@ from definitions.date import Date
 from definitions.day_count import DayCountConvention, compute_year_fraction
 from definitions.frequency import Frequency
 
+# TODO better modeling of interest rates
+"""
+class AbstractInterestRate(ABC):
+
+    @abstractmethod
+    def to_discount_factor() -> Decimal:
+    
+    
+class SimpleInterestRate:
+
+
+class ContinuousInterestRate:
+
+
+class CompoundedInterestRate:
+
+
+Factory function:
+
+def interest_rate(rate: Decimal, day_count: DayCountConvention, type: Simple | Continuous | Compounded, freq: )
+    if simple:
+        return SimpleInterestRate(rate, day_count)
+        return ContinuousInterestRate(rate, day_count)
+        return CompoundedInterestRate(rate, day_count, frequency)
+
+
+rate = interest_rate(Decimal("0.01"), DayCount("ModifiedFollowing"), Compounding("Simple"))
+rate = interest_rate(Decimal("0.01"), DayCount("ModifiedFollowing"), Compounding("Continuous"))
+rate = interest_rate(Decimal("0.01"), DayCount("ModifiedFollowing"), Compounding("Compounded"), Frequency("Monthly"))
+
+Compounding = Simple | Continuous | Annual | Quarterly | Monthly | Weekly | Daily
+
+"""
+
 
 # NO_COMPOUNDING, DISCRETE COMPOUNDING or CONTINUOUS COMPOUNDING
 
 
 @total_ordering
-class Decimal:
+class InterestRate:
     def __init__(
         self,
         rate: Decimal,
@@ -94,10 +128,10 @@ class Decimal:
                 return self.rate
 
             case Frequency.SEMI_ANNUAL:
-                return Decimal(1 + self.rate / Decimal(2)) ** Decimal(2) - 1
+                return InterestRate(1 + self.rate / InterestRate(2)) ** InterestRate(2) - 1
 
             case Frequency.MONTHLY:
-                return Decimal(1 + self.rate / Decimal(12)) ** Decimal(12) - 1
+                return InterestRate(1 + self.rate / InterestRate(12)) ** InterestRate(12) - 1
 
             case Frequency.QUARTERLY:
                 return (1 + self.rate / 4) ** 4 - 1
@@ -112,13 +146,13 @@ class Decimal:
                 return Decimal.exp(self.rate) - 1
 
     def __eq__(self, other):
-        if not isinstance(other, Decimal):
+        if not isinstance(other, InterestRate):
             raise TypeError()
 
         return self.rate == other.rate and self.day_count == other.day_count and self.compounding == other.compounding
 
     def __lt__(self, other):
-        if not isinstance(other, Decimal):
+        if not isinstance(other, InterestRate):
             raise TypeError()
 
         return self.effective < other.effective
